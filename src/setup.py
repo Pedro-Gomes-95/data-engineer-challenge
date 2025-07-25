@@ -4,10 +4,19 @@ import logging
 from pathlib import Path
 from dotenv import load_dotenv
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("setup")
 logger.setLevel(logging.INFO)
 
-if __name__ == "__main__":
+handler = logging.StreamHandler()
+formatter = logging.Formatter('%(asctime)s %(name)s, %(levelname)s: %(message)s')
+handler.setFormatter(formatter)
+
+logger.addHandler(handler)
+
+def main():
+    os.environ.pop("API_KEY")
+    os.environ.pop("RAW_FILES_PATH")
+
     path = Path(__file__).parent.parent
 
     # Load the environment variables from the .env file
@@ -48,15 +57,18 @@ if __name__ == "__main__":
     # Create the RAW_FILES_PATH if it doesn't exist
     try:
         os.makedirs(raw_files_path)
-        logging.info(f"Creating directory {raw_files_path}")
+        logger.info(f"Creating directory {raw_files_path}")
     except FileExistsError:
-        logging.info(f"Directory {raw_files_path} already exists.")
+        logger.info(f"Directory {raw_files_path} already exists.")
 
     # Create the LOADED_FILES_PATH if it doesn't exist
     try:
         os.makedirs(loaded_files_path)
-        logging.info(f"Creating directory {loaded_files_path}")
+        logger.info(f"Creating directory {loaded_files_path}")
     except FileExistsError:
-        logging.info(f"Directory {loaded_files_path} already exists.")
+        logger.info(f"Directory {loaded_files_path} already exists.")
 
     logger.info("Setup successful.")
+
+if __name__ == "__main__":
+    main()
