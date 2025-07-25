@@ -1,0 +1,15 @@
+{
+    "api": {
+        "base_url": "https://api.openweathermap.org/data/2.5/weather",
+        "units": "metric",
+        "language": "en"
+    },
+    "cities": [
+        {
+            "name": "Lisbon"
+        },
+        {
+            "name": "Braga"
+        }
+    ]
+}
