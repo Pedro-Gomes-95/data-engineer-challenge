@@ -42,24 +42,33 @@ def setup():
         )
 
     # Check if the RAW_FILES_PATH is present in the .env file
-    raw_files_path = path / os.getenv("RAW_FILES_PATH")
-    if not raw_files_path:
-        raw_files_path = path / "data/files"
+    raw_files_path_env = os.getenv("RAW_FILES_PATH")
+
+    if raw_files_path_env:
+        raw_files_path = path / os.getenv("RAW_FILES_PATH")
+    else:
+        raw_files_path = path / "data/raw"
         logger.warning(
             f"RAW_FILES_PATH not found in the .env file, using {raw_files_path} as default."
         )
 
     # Check if the INTERMEDIATE_FILES_PATH is present in the .env file
-    intermediate_files_path = path / os.getenv("INTERMEDIATE_FILES_PATH")
-    if not intermediate_files_path:
+    intermediate_files_path_env = os.getenv("INTERMEDIATE_FILES_PATH")
+
+    if intermediate_files_path_env:
+        intermediate_files_path = path / os.getenv("INTERMEDIATE_FILES_PATH")
+    else:
         intermediate_files_path = path / "data/intermediate"
         logger.warning(
             f"LOADED_FILES_PATH not found in the .env file, using {intermediate_files_path}."
         )
 
     # Check if the PROCESSED_FILES_PATH is present in the .env file
-    processed_files_path = path / os.getenv("PROCESSED_FILES_PATH")
-    if not processed_files_path:
+    processed_files_path_env = os.getenv("PROCESSED_FILES_PATH")
+
+    if processed_files_path_env:
+        processed_files_path = path / processed_files_path_env
+    else:
         processed_files_path = path / "data/processed"
         logger.warning(
             f"PROCESSED_FILES_PATH not found in the .env file, using {processed_files_path}."
