@@ -213,7 +213,9 @@ def loading():
 
     # If new files exist, write the data and the txt file
     if new_files_list:
-        new_files_df = pd.DataFrame(new_files_list)
+        # To avoid conversion problems, convert everything to string
+        new_files_df = pd.DataFrame(new_files_list).astype("string")
+
         new_files_df["file_name"] = new_file_names
         new_files_df["ingestion_date"] = new_files_ingestion_timestamps
 
