@@ -11,5 +11,8 @@
         {
             "name": "Braga"
         }
-    ]
+    ],
+    "ingesting_layer": {
+        "table_name": "loaded_weather_data"
+    }
 }

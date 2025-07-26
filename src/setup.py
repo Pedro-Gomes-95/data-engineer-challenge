@@ -13,9 +13,9 @@ handler.setFormatter(formatter)
 
 logger.addHandler(handler)
 
-def main():
-    os.environ.pop("API_KEY")
-    os.environ.pop("RAW_FILES_PATH")
+def setup():
+    # os.environ.pop("API_KEY")
+    # os.environ.pop("RAW_FILES_PATH")
 
     path = Path(__file__).parent.parent
 
@@ -71,4 +71,4 @@ def main():
     logger.info("Setup successful.")
 
 if __name__ == "__main__":
-    main()
+    setup()
