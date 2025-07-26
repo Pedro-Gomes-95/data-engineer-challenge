@@ -8,14 +8,16 @@ logger = logging.getLogger("setup")
 logger.setLevel(logging.INFO)
 
 handler = logging.StreamHandler()
-formatter = logging.Formatter('%(asctime)s %(name)s, %(levelname)s: %(message)s')
+formatter = logging.Formatter("%(asctime)s %(name)s, %(levelname)s: %(message)s")
 handler.setFormatter(formatter)
 
 logger.addHandler(handler)
 
+
 def setup():
     # os.environ.pop("API_KEY")
-    # os.environ.pop("RAW_FILES_PATH")
+    os.environ.pop("RAW_FILES_PATH")
+    # os.environ.pop("PROCESSED_FILES_PATH")
 
     path = Path(__file__).parent.parent
 
@@ -39,7 +41,7 @@ def setup():
             "API_KEY not found in the .env file. Please insert a valid API key in the file."
         )
 
-    # Check if the RAW_FILES_PATH and LOADED_FILES_PATH are present in the .env file
+    # Check if the RAW_FILES_PATH is present in the .env file
     raw_files_path = path / os.getenv("RAW_FILES_PATH")
     if not raw_files_path:
         raw_files_path = path / "data/files"
@@ -47,28 +49,45 @@ def setup():
             f"RAW_FILES_PATH not found in the .env file, using {raw_files_path} as default."
         )
 
-    loaded_files_path = path / os.getenv("LOADED_FILES_PATH")
-    if not loaded_files_path:
-        loaded_files_path = path / "data/loaded"
+    # Check if the INTERMEDIATE_FILES_PATH is present in the .env file
+    intermediate_files_path = path / os.getenv("INTERMEDIATE_FILES_PATH")
+    if not intermediate_files_path:
+        intermediate_files_path = path / "data/intermediate"
         logger.warning(
-            f"LOADED_FILES_PATH not found in the .env file, using {loaded_files_path}."
+            f"LOADED_FILES_PATH not found in the .env file, using {intermediate_files_path}."
+        )
+
+    # Check if the PROCESSED_FILES_PATH is present in the .env file
+    processed_files_path = path / os.getenv("PROCESSED_FILES_PATH")
+    if not processed_files_path:
+        processed_files_path = path / "data/processed"
+        logger.warning(
+            f"PROCESSED_FILES_PATH not found in the .env file, using {processed_files_path}."
         )
 
     # Create the RAW_FILES_PATH if it doesn't exist
-    try:
-        os.makedirs(raw_files_path)
-        logger.info(f"Creating directory {raw_files_path}")
-    except FileExistsError:
+    if os.path.exists(raw_files_path):
         logger.info(f"Directory {raw_files_path} already exists.")
+    else:
+        logger.info(f"Creating directory {raw_files_path}")
+        os.makedirs(raw_files_path)
 
     # Create the LOADED_FILES_PATH if it doesn't exist
-    try:
-        os.makedirs(loaded_files_path)
-        logger.info(f"Creating directory {loaded_files_path}")
-    except FileExistsError:
-        logger.info(f"Directory {loaded_files_path} already exists.")
+    if os.path.exists(intermediate_files_path):
+        logger.info(f"Directory {intermediate_files_path} already exists.")
+    else:
+        logger.info(f"Creating directory {intermediate_files_path}")
+        os.makedirs(intermediate_files_path)
+
+    # Create the PROCESSED_FILES_PATH if it doesn't exist
+    if os.path.exists(processed_files_path):
+        logger.info(f"Directory {processed_files_path} already exists.")
+    else:
+        logger.info(f"Creating directory {processed_files_path}")
+        os.makedirs(processed_files_path)
 
     logger.info("Setup successful.")
+
 
 if __name__ == "__main__":
     setup()

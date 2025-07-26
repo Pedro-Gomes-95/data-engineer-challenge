@@ -18,7 +18,8 @@ logger.addHandler(handler)
 
 def ingestion():
     # os.environ.pop("API_KEY")
-    # os.environ.pop("RAW_FILES_PATH")
+    os.environ.pop("RAW_FILES_PATH")
+    # os.environ.pop("PROCESSED_FILES_PATH")
 
     path = Path(__file__).parent.parent
 
@@ -55,7 +56,7 @@ def ingestion():
     # Check if the RAW_FILES_PATH and LOADED_FILES_PATH are present in the .env file
     raw_files_path = path / os.getenv("RAW_FILES_PATH")
     if not raw_files_path:
-        raw_files_path = path / "data/files"
+        raw_files_path = path / "data/raw"
         logger.warning(
             f"RAW_FILES_PATH not found in the .env file, using {raw_files_path} as default."
         )
@@ -86,18 +87,16 @@ def ingestion():
         # Check if the directory that will store the files exists
         city_path = raw_files_path / city_name
 
-        try:
+        if not os.path.exists(city_path):
+            logger.info(f"Creating directory {city_path}")
             os.makedirs(city_path)
-            logging.info(f"Creating directory {city_path}")
-        except FileExistsError:
-            logging.info(f"Directory {city_path} already exists.")
 
         file_path = city_path / f"{measurement_timestamp_string}_{city_name}.json"
 
         with open(file_path, "w") as file:
             json.dump(city_weather_data, file, indent=4)
 
-        logging.info(f"Data file {file_path} created successfully")
+        logger.info(f"Data file {file_path} created successfully")
 
 
 if __name__ == "__main__":
