@@ -1,8 +1,154 @@
 {
-    "api": {
-        "base_url": "https://api.openweathermap.org/data/2.5/weather",
-        "units": "metric",
-        "language": "en"
+    "ingestion_layer": {
+        "api": {
+            "base_url": "https://api.openweathermap.org/data/2.5/weather",
+            "units": "metric",
+            "language": "en",
+            "fields": {
+                "coord": {
+                    "type": "dict",
+                    "subfields": {
+                        "lon": {
+                            "type": "float64"
+                        },
+                        "lat": {
+                            "type": "float64"
+                        }
+                    }
+                },
+                "weather": {
+                    "type": "list",
+                    "items": {
+                        "type": "dict",
+                        "subfields": {
+                            "id": {
+                                "type": "int64"
+                            },
+                            "main": {
+                                "type": "string"
+                            },
+                            "description": {
+                                "type": "string"
+                            },
+                            "icon": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "base": {
+                    "type": "string"
+                },
+                "main": {
+                    "type": "dict",
+                    "subfields": {
+                        "temp": {
+                            "type": "float64"
+                        },
+                        "feels_like": {
+                            "type": "float64"
+                        },
+                        "temp_min": {
+                            "type": "float64"
+                        },
+                        "temp_max": {
+                            "type": "float64"
+                        },
+                        "pressure": {
+                            "type": "int64"
+                        },
+                        "humidity": {
+                            "type": "int64"
+                        },
+                        "sea_level": {
+                            "type": "int64"
+                        },
+                        "grnd_level": {
+                            "type": "int64"
+                        }
+                    }
+                },
+                "visibility": {
+                    "type": "int64"
+                },
+                "wind": {
+                    "type": "dict",
+                    "subfields": {
+                        "speed": {
+                            "type": "float64"
+                        },
+                        "deg": {
+                            "type": "int64"
+                        },
+                        "gust": {
+                            "type": "float64"
+                        }
+                    }
+                },
+                "clouds": {
+                    "type": "dict",
+                    "subfields": {
+                        "all": {
+                            "type": "int64"
+                        }
+                    }
+                },
+                "rain": {
+                    "type": "dict",
+                    "subfields": {
+                        "1h": {
+                            "type": "float64"
+                        }
+                    }
+                },
+                "snow": {
+                    "type": "dict",
+                    "subfields": {
+                        "1h": {
+                            "type": "float64"
+                        }
+                    }
+                },
+                "dt": {
+                    "type": "timestamp"
+                },
+                "sys": {
+                    "type": "dict",
+                    "subfields": {
+                        "type": {
+                            "type": "int64"
+                        },
+                        "id": {
+                            "type": "int64"
+                        },
+                        "message": {
+                            "type": "float64"
+                        },
+                        "country": {
+                            "type": "string"
+                        },
+                        "sunrise": {
+                            "type": "timestamp"
+                        },
+                        "sunset": {
+                            "type": "timestamp"
+                        }
+                    }
+                },
+                "timezone": {
+                    "type": "int64"
+                },
+                "id": {
+                    "type": "int64"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "cod": {
+                    "type": "int64"
+                }
+            }
+        }
     },
     "cities": [
         {
@@ -13,6 +159,38 @@
         }
     ],
     "intermediate_layer": {
-        "table_name": "weather_data"
+        "weather_data": {
+            "table_name": "weather_data"
+        }
+    },
+    "processing_layer": {
+        "weather_data": {
+            "table_name": "weather_data_processed",
+            "columns_rename": {
+                "dt": "time_value",
+                "timezone": "timezone",
+                "id": "city_id",
+                "coord_lat": "latitude",
+                "coord_lon": "longitude",
+                "weather_id": "weather_id",
+                "visibility": "visibility",
+                "main_temp": "temperature",
+                "main_feels_like": "perceived_temperature",
+                "main_temp_min": "min_temperature",
+                "main_temp_max": "max_temperature",
+                "main_pressure": "atm_pressure_sea_level",
+                "main_grnd_level": "atm_pressure_ground_level",
+                "main_humidity": "humidity",
+                "wind_speed": "wind_speed",
+                "wind_deg": "wind_direction",
+                "wind_gust": "wind_gust",
+                "clouds_all": "cloudiness",
+                "rain_1h": "rain",
+                "snow_1h": "snow",
+                "sys_sunrise": "time_sunrise",
+                "sys_sunset": "time_sunset",
+                "file_name": "file_name"
+            }
+        }
     }
 }
