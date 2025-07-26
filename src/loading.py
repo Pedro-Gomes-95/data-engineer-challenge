@@ -6,6 +6,8 @@ import pandas as pd
 from pathlib import Path
 from dotenv import load_dotenv
 
+from utils.auxiliary_functions import flatten_json, flatten_schema
+
 logger = logging.getLogger("loading")
 logger.setLevel(logging.DEBUG)
 
@@ -18,7 +20,7 @@ logger.addHandler(handler)
 
 def loading():
     # os.environ.pop("API_KEY")
-    os.environ.pop("RAW_FILES_PATH")
+    # os.environ.pop("RAW_FILES_PATH")
     # os.environ.pop("PROCESSED_FILES_PATH")
 
     path = Path(__file__).parent.parent
@@ -147,6 +149,12 @@ def loading():
                     "The processed files in the Parquet file and the text file are matching."
                 )
 
+    # Get the flattened schema
+    list_fields = config.get("ingestion_layer", {}).get(
+        "api", {}).get("fields", {})
+    
+    schema_flattened = flatten_schema(schema_dict=list_fields, logger=logger)
+
     # Iterate through the different city directories and process the files to a single table
     new_files_processed = 0
     new_files_list = []
@@ -180,7 +188,18 @@ def loading():
                 with open(file_path, "r") as f:
                     data = json.load(f)
 
-                new_files_list.append(data)
+                # Flatten the JSON structure
+                data_flattened = flatten_json(data_json=data, logger=logger)
+
+                # Check if any fields are missing from the API response
+                missing_fields = set(schema_flattened) - set(data_flattened)
+
+                # If the fields are missing, create them with None
+                for field in missing_fields:
+                    data_flattened[field] = None
+
+                # Append 
+                new_files_list.append(data_flattened)
                 new_file_names.append(file)
                 new_files_ingestion_timestamps.append(pd.Timestamp.now())
 

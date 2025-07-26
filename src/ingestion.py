@@ -36,8 +36,7 @@ def ingestion():
     # Load the environment variables from the .env file
     logger.info("Loading content from .env file")
 
-    env_path = path / ".env"
-    env_loaded = load_dotenv(env_path)
+    env_loaded = load_dotenv(path / ".env")
 
     if not env_loaded:
         raise FileNotFoundError(
@@ -53,9 +52,12 @@ def ingestion():
             "API_KEY not found in the .env file. Please insert a valid API key in the file."
         )
 
-    # Check if the RAW_FILES_PATH and LOADED_FILES_PATH are present in the .env file
-    raw_files_path = path / os.getenv("RAW_FILES_PATH")
-    if not raw_files_path:
+    # Check if the RAW_FILES_PATH is present in the .env file
+    raw_files_path_env = os.getenv("RAW_FILES_PATH")
+
+    if raw_files_path_env:
+        raw_files_path = path / os.getenv("RAW_FILES_PATH")
+    else:
         raw_files_path = path / "data/raw"
         logger.warning(
             f"RAW_FILES_PATH not found in the .env file, using {raw_files_path} as default."
@@ -63,7 +65,7 @@ def ingestion():
 
     logger.info(".env file loaded successfully.")
 
-    # Create the API Client
+    # API Client
     api_client = WeatherAPIClient(
         base_url=api_configuration.get(
             "base_url", "https://api.openweathermap.org/data/2.5/weather"
@@ -76,6 +78,7 @@ def ingestion():
 
     # Fetch the data
     for city in city_configuration:
+        logger.info(f"Fetching weather data for city {city}")
         city_weather_data = api_client.fetch_data(city=city)
 
         city_name = city_weather_data.get("name")
@@ -96,7 +99,7 @@ def ingestion():
         with open(file_path, "w") as file:
             json.dump(city_weather_data, file, indent=4)
 
-        logger.info(f"Data file {file_path} created successfully")
+        logger.info(f"Data file {file_path} written successfully")
 
 
 if __name__ == "__main__":
