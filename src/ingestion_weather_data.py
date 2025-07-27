@@ -5,7 +5,9 @@ import pandas as pd
 
 from pathlib import Path
 from dotenv import load_dotenv
+
 from utils.weather_api_client import WeatherAPIClient
+from utils.auxiliary_functions import load_env_variables, create_directory
 
 logger = logging.getLogger("ingestion")
 logger.setLevel(logging.INFO)
@@ -18,9 +20,20 @@ logger.addHandler(handler)
 
 
 def ingest_weather_data():
-    path = Path(__file__).parent.parent
+    logger.info("Starting ingestion process of data from the API")
 
-    # Read the configuration file
+    # Load the environment variables
+    path = Path(__file__).parent.parent
+    env_variables = load_env_variables(path, logger)
+
+    # Check if the API_KEY is present in the .env file, and, if not, raise an error
+    api_key = os.getenv("API_KEY")
+    if not api_key:
+        raise ValueError(
+            "API_KEY not found in the .env file. Please insert a valid API key in the file."
+        )
+
+    # Read the configuration file, and raise an error if it's not found
     try:
         logger.info("Loading the JSON configuration file")
         with open(path / "config/config_file.json", "r") as f:
@@ -30,50 +43,24 @@ def ingest_weather_data():
         raise
 
     # Get API and City information
-    api_configuration = config.get("ingestion_layer", {}).get("api", {})
+    base_url = (
+        config.get("ingestion_layer", {})
+        .get("api", {})
+        .get("base_url", "https://api.openweathermap.org/data/2.5/weather")
+    )
+    units = config.get("ingestion_layer", {}).get("api", {}).get("units", "metric")
+    language = config.get("ingestion_layer", {}).get("api", {}).get("language", "en")
     city_configuration = config.get("cities", [])
 
-    # Load the environment variables from the .env file
-    logger.info("Loading content from .env file")
-
-    env_loaded = load_dotenv(path / ".env")
-
-    if not env_loaded:
-        raise FileNotFoundError(
-            "Could not find the .env file. Please check the README file, and create the .env file."
-        )
-        
-    else:
-        logger.info("The .env file has been loaded successfully.")
-
-    # Check if the API_KEY is present in the .env file
-    api_key = os.getenv("API_KEY")
-    if not api_key:
-        raise ValueError(
-            "API_KEY not found in the .env file. Please insert a valid API key in the file."
-        )
-
-    # Check if the RAW_FILES_PATH is present in the .env file
-    raw_files_path_env = os.getenv("RAW_FILES_PATH")
-
-    if raw_files_path_env:
-        raw_files_path = path / raw_files_path_env
-    else:
-        raw_files_path = path / "data/raw"
-        logger.warning(
-            f"RAW_FILES_PATH not found in the .env file, using {raw_files_path} as default."
-        )
-
-    logger.info(".env file loaded successfully.")
+    # Get the RAW_FILES_PATH
+    raw_files_path = env_variables.get("RAW_FILES_PATH")
 
     # API Client
     api_client = WeatherAPIClient(
-        base_url=api_configuration.get(
-            "base_url", "https://api.openweathermap.org/data/2.5/weather"
-        ),
+        base_url=base_url,
         api_key=api_key,
-        units=api_configuration.get("units", "metric"),
-        language=api_configuration.get("language", "en"),
+        units=units,
+        language=language,
         logger=logger,
     )
 
@@ -88,19 +75,19 @@ def ingest_weather_data():
             measurement_timestamp_unix, unit="s"
         ).strftime("%Y%m%d_%H%M%S")
 
-        # Check if the directory that will store the files exists
+        # Check if the directory that will store the files exists. If not, create it
         city_path = raw_files_path / city_name
+        create_directory(path=city_path, logger=logger)
 
-        if not os.path.exists(city_path):
-            logger.info(f"Creating directory {city_path}")
-            os.makedirs(city_path)
-
+        # Save the file
         file_path = city_path / f"{measurement_timestamp_string}_{city_name}.json"
 
         with open(file_path, "w") as file:
             json.dump(city_weather_data, file, indent=4)
 
-        logger.info(f"Data file {file_path} written successfully")
+        logger.info(f"Data file {file_path} written successfully.")
+
+    logger.info("Ingestion process of weather data completed successfuly.")
 
 
 if __name__ == "__main__":

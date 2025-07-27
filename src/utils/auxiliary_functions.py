@@ -241,7 +241,7 @@ def expand_dictionary_column(
         is_dict_column = df[column].apply(lambda x: isinstance(x, dict)).all()
 
         if is_dict_column:
-            df_ = pd.json_normalize(df[column]).add_prefix(f"{column}")
+            df_ = pd.json_normalize(df[column]).add_prefix(f"{column}_")
             df = pd.concat([df, df_], axis=1).drop(column, axis=1)
 
             logger.info(f"Column {column} succcessfuly expanded.")
