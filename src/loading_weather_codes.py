@@ -5,7 +5,7 @@ import pandas as pd
 from pathlib import Path
 from utils.auxiliary_functions import load_env_variables
 
-logger = logging.getLogger("ingestion_weather_codes")
+logger = logging.getLogger("loading_weather_codes")
 logger.setLevel(logging.INFO)
 
 handler = logging.StreamHandler()
