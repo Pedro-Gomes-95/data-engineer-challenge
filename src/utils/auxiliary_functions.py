@@ -1,10 +1,39 @@
-import logging
 import pandas as pd
+from logging import Logger
 
 
-def flatten_json(
-    data_json: dict, logger: logging.Logger, parent_field: str = None
-) -> dict:
+def flatten_json(data_json: dict, logger: Logger, parent_field: str = None) -> dict:
+    """
+    Flattens the dictionary 'data_json'.
+
+    Consider the following example for the input data_json, which consists of a nested structure:
+        data_json = {
+            'key1': 'value1',
+            'key2': {
+                'key3': 'value3',
+                'key4': 'value4,
+                }
+            ...
+        }
+
+    The returned flattened dictionary will be:
+        {
+            'key1': 'value1',
+            'key2_key3': 'value3',
+            'key2_key4': 'value4',
+            ...
+        }
+
+    Arguments:
+        data_json (dict): the input dictionary to be flattened.
+        parent_field (str): for a nested structure, where one key has a dictionary
+        as the value, parent_field consists of this key.
+        logger (Logger): logger.
+
+    Returns:
+        flattened_json: the flattened dictionary.
+    """
+
     logger.info("Flattening the JSON file")
 
     flattened_json = {}
@@ -26,9 +55,44 @@ def flatten_json(
     return flattened_json
 
 
-def flatten_schema(
-    schema_dict: dict, logger: logging.Logger, parent_field: str = None
-) -> dict:
+def flatten_schema(schema_dict: dict, logger: Logger, parent_field: str = None) -> dict:
+    """
+    Flattens the dictionary 'schema_dict'. This dictionary contains information about the
+    data fields and their types.
+
+    Consider the following example for the input schema_dict, which consists of a nested structure:
+        schema_dict = {
+            'key1': {
+                'type': 'dict',
+                'subfields': {
+                    'key2': {
+                        'type': 'float64'
+                        },
+                    'key3': {
+                        'type': 'string'
+                        }
+                    }
+                }
+            ...
+        }
+
+    The returned flattened dictionary will be:
+        {
+            'key1_key2': 'float64',
+            'key1_key3': 'string',
+            ...
+        }
+
+    Arguments:
+        schema_dict (dict): the input dictionary to be flattened.
+        parent_field (str): for a nested structure, where one key has a dictionary
+        as the value, parent_field consists of this key.
+        logger (Logger): logger.
+
+    Returns:
+        flattened_json: the flattened dictionary.
+    """
+
     logger.info(f"Flattening provided schema dictionary")
 
     flattened_schema = {}
@@ -63,8 +127,24 @@ def flatten_schema(
     return flattened_schema
 
 
-def cast_columns(df: pd.DataFrame, column_types: str, logger: logging.Logger):
-    logger.info(f"Renaming columns of DataFrame")
+def cast_columns(df: pd.DataFrame, column_types: dict, logger: Logger):
+    """
+    Casts the DataFrame df columns to the types specified in column_types.
+
+    The column in the DataFrame is returned unmodified if:
+        - The column does not exist in the DataFrame
+        - Casting was unsuccessful
+
+    Arguments:
+        df (pd.DataFrame): the input DataFrame.
+        column_types (str): the mapping of each to column to its type.
+        logger (Logger): logger.
+
+    Returns:
+        df: the DataFrame with the columns in the desired format.
+    """
+
+    logger.info(f"Converting columns of DataFrame")
 
     for column, type in column_types.items():
         try:
@@ -75,5 +155,43 @@ def cast_columns(df: pd.DataFrame, column_types: str, logger: logging.Logger):
         except Exception as e:
             logger.error(f"Error converting column {column} to type {type}: {e}")
             continue
+
+    return df
+
+
+def expand_dictionary_column(
+    df: pd.DataFrame, column: str, logger: Logger
+) -> pd.DataFrame:
+    """
+    Expands the column 'column' in the DataFrame 'df' provided that 'column' is a column
+    of dictionaries.
+
+    The DataFrame is returned unmodified if:
+        - The column does not exist in the DataFrame
+        - The column exists, but is not of type dictionary.
+
+    Arguments:
+        df (pd.DataFrame): the input DataFrame.
+        column (str): the column to expand into multiple columns.
+        logger (Logger): logger.
+
+    Returns:
+        df: the DataFrame with the expanded column.
+    """
+
+    logger.info(f"Expanding column {column} in DataFrame")
+
+    if column in df.columns:
+        is_dict_column = df[column].apply(lambda x: isinstance(x, dict)).all()
+
+        if is_dict_column:
+            df_ = pd.json_normalize(df[column]).add_prefix(f"{column}")
+            df = pd.concat([df, df_], axis=1).drop(column, axis=1)
+
+            logger.info(f"Column {column} succcessfuly expanded.")
+        else:
+            logger.error(f"The column {column} is not of type dict. Skipping.")
+    else:
+        logger.error("The column 'coord' could not be found in the data.")
 
     return df
