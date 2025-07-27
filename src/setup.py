@@ -2,7 +2,8 @@ import os
 import logging
 
 from pathlib import Path
-from dotenv import load_dotenv
+
+from utils.auxiliary_functions import load_env_variables, create_directory
 
 logger = logging.getLogger("setup")
 logger.setLevel(logging.INFO)
@@ -15,85 +16,34 @@ logger.addHandler(handler)
 
 
 def setup():
-    # os.environ.pop("API_KEY")
-    os.environ.pop("RAW_FILES_PATH")
-    # os.environ.pop("PROCESSED_FILES_PATH")
-
+    # Load the environment variables
     path = Path(__file__).parent.parent
+    env_variables = load_env_variables(path, logger)
 
-    # Load the environment variables from the .env file
-    logger.info("Loading content from .env file")
-
-    env_path = path / ".env"
-    env_loaded = load_dotenv(env_path)
-
-    if not env_loaded:
-        raise FileNotFoundError(
-            "Could not find the .env file. Please check the README file, and create the .env file."
-        )
-    else:
-        logger.info("The .env file has been loaded successfully.")
-
-    # Check if the API_KEY is present in the .env file
-    api_key = os.getenv("API_KEY")
+    # Check if the API_KEY is present
+    api_key = env_variables.get("API_KEY")
     if not api_key:
         raise ValueError(
             "API_KEY not found in the .env file. Please insert a valid API key in the file."
         )
 
     # Check if the RAW_FILES_PATH is present in the .env file
-    raw_files_path_env = os.getenv("RAW_FILES_PATH")
-
-    if raw_files_path_env:
-        raw_files_path = path / os.getenv("RAW_FILES_PATH")
-    else:
-        raw_files_path = path / "data/raw"
-        logger.warning(
-            f"RAW_FILES_PATH not found in the .env file, using {raw_files_path} as default."
-        )
+    raw_files_path = env_variables.get("RAW_FILES_PATH")
 
     # Check if the INTERMEDIATE_FILES_PATH is present in the .env file
-    intermediate_files_path_env = os.getenv("INTERMEDIATE_FILES_PATH")
-
-    if intermediate_files_path_env:
-        intermediate_files_path = path / os.getenv("INTERMEDIATE_FILES_PATH")
-    else:
-        intermediate_files_path = path / "data/intermediate"
-        logger.warning(
-            f"LOADED_FILES_PATH not found in the .env file, using {intermediate_files_path}."
-        )
+    intermediate_files_path = env_variables.get("INTERMEDIATE_FILES_PATH")
 
     # Check if the PROCESSED_FILES_PATH is present in the .env file
-    processed_files_path_env = os.getenv("PROCESSED_FILES_PATH")
-
-    if processed_files_path_env:
-        processed_files_path = path / processed_files_path_env
-    else:
-        processed_files_path = path / "data/processed"
-        logger.warning(
-            f"PROCESSED_FILES_PATH not found in the .env file, using {processed_files_path}."
-        )
+    processed_files_path = env_variables.get("PROCESSED_FILES_PATH")
 
     # Create the RAW_FILES_PATH if it doesn't exist
-    if os.path.exists(raw_files_path):
-        logger.info(f"Directory {raw_files_path} already exists.")
-    else:
-        logger.info(f"Creating directory {raw_files_path}")
-        os.makedirs(raw_files_path)
+    create_directory(path=raw_files_path, logger=logger)
 
     # Create the LOADED_FILES_PATH if it doesn't exist
-    if os.path.exists(intermediate_files_path):
-        logger.info(f"Directory {intermediate_files_path} already exists.")
-    else:
-        logger.info(f"Creating directory {intermediate_files_path}")
-        os.makedirs(intermediate_files_path)
+    create_directory(path=intermediate_files_path, logger=logger)
 
     # Create the PROCESSED_FILES_PATH if it doesn't exist
-    if os.path.exists(processed_files_path):
-        logger.info(f"Directory {processed_files_path} already exists.")
-    else:
-        logger.info(f"Creating directory {processed_files_path}")
-        os.makedirs(processed_files_path)
+    create_directory(path=processed_files_path, logger=logger)
 
     logger.info("Setup successful.")
 

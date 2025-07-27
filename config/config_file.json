@@ -1,11 +1,7 @@
 {
     "cities": [
-        {
-            "name": "Lisbon"
-        },
-        {
-            "name": "Braga"
-        }
+        "Lisbon",
+        "Braga"
     ],
     "ingestion_layer": {
         "api": {

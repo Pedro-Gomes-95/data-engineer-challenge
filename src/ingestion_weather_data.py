@@ -18,20 +18,19 @@ logger.addHandler(handler)
 
 
 def ingest_weather_data():
-    # os.environ.pop("API_KEY")
-    os.environ.pop("RAW_FILES_PATH")
-    # os.environ.pop("PROCESSED_FILES_PATH")
-
     path = Path(__file__).parent.parent
 
     # Read the configuration file
-    logger.info("Loading the JSON configuration file")
-
-    with open(path / "config/config_file.json", "r") as f:
-        config = json.load(f)
+    try:
+        logger.info("Loading the JSON configuration file")
+        with open(path / "config/config_file.json", "r") as f:
+            config = json.load(f)
+    except Exception as e:
+        logger.error(f"Error loading the JSON configuration file: {e}")
+        raise
 
     # Get API and City information
-    api_configuration = config.get("api", {})
+    api_configuration = config.get("ingestion_layer", {}).get("api", {})
     city_configuration = config.get("cities", [])
 
     # Load the environment variables from the .env file
@@ -43,6 +42,7 @@ def ingest_weather_data():
         raise FileNotFoundError(
             "Could not find the .env file. Please check the README file, and create the .env file."
         )
+        
     else:
         logger.info("The .env file has been loaded successfully.")
 
@@ -57,7 +57,7 @@ def ingest_weather_data():
     raw_files_path_env = os.getenv("RAW_FILES_PATH")
 
     if raw_files_path_env:
-        raw_files_path = path / os.getenv("RAW_FILES_PATH")
+        raw_files_path = path / raw_files_path_env
     else:
         raw_files_path = path / "data/raw"
         logger.warning(
