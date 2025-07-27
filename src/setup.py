@@ -44,23 +44,10 @@ def setup():
             "API_KEY not found in the .env file. Please insert a valid API key in the file."
         )
 
-    # Get the RAW_FILES_PATH
-    raw_files_path = env_variables.get("RAW_FILES_PATH")
-
-    # Get the LOADED_FILES_PATH
-    loaded_files_path = env_variables.get("LOADED_FILES_PATH")
-
-    # Get the PROCESSED_FILES_PATH
-    processed_files_path = env_variables.get("PROCESSED_FILES_PATH")
-
-    # Create the RAW_FILES_PATH if it doesn't exist
-    create_directory(path=raw_files_path, logger=logger)
-
-    # Create the LOADED_FILES_PATH if it doesn't exist
-    create_directory(path=loaded_files_path, logger=logger)
-
-    # Create the PROCESSED_FILES_PATH if it doesn't exist
-    create_directory(path=processed_files_path, logger=logger)
+    # Create the paths if they don't exist
+    for value in env_variables.values():
+        if isinstance(value, Path):
+            create_directory(path=value, logger=logger)
 
     logger.info("Setup successfuly completed.")
 
