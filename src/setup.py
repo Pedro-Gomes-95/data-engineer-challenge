@@ -16,6 +16,8 @@ logger.addHandler(handler)
 
 
 def setup():
+    logger.info("Starting setup process")
+
     # Load the environment variables
     path = Path(__file__).parent.parent
     env_variables = load_env_variables(path, logger)
@@ -27,13 +29,13 @@ def setup():
             "API_KEY not found in the .env file. Please insert a valid API key in the file."
         )
 
-    # Check if the RAW_FILES_PATH is present in the .env file
+    # Get the RAW_FILES_PATH
     raw_files_path = env_variables.get("RAW_FILES_PATH")
 
-    # Check if the INTERMEDIATE_FILES_PATH is present in the .env file
+    # Get the INTERMEDIATE_FILES_PATH
     intermediate_files_path = env_variables.get("INTERMEDIATE_FILES_PATH")
 
-    # Check if the PROCESSED_FILES_PATH is present in the .env file
+    # Get the PROCESSED_FILES_PATH
     processed_files_path = env_variables.get("PROCESSED_FILES_PATH")
 
     # Create the RAW_FILES_PATH if it doesn't exist
@@ -45,7 +47,7 @@ def setup():
     # Create the PROCESSED_FILES_PATH if it doesn't exist
     create_directory(path=processed_files_path, logger=logger)
 
-    logger.info("Setup successful.")
+    logger.info("Setup successfuly completed.")
 
 
 if __name__ == "__main__":

@@ -5,9 +5,10 @@ import pandas as pd
 
 from pathlib import Path
 from dotenv import load_dotenv
-from utils.weather_api_client import WeatherAPIClient
 
-logger = logging.getLogger("ingestion")
+from utils.auxiliary_functions import load_env_variables
+
+logger = logging.getLogger("ingestion_weather_codes")
 logger.setLevel(logging.INFO)
 
 handler = logging.StreamHandler()
@@ -18,7 +19,17 @@ logger.addHandler(handler)
 
 
 def ingest_weather_codes():
+    logging.info("Starting ingestion process of weather codes")
+
+    # Load the environment variables
     path = Path(__file__).parent.parent
+    env_variables = load_env_variables(path, logger)
+
+    # Check if the FILES_PATH is present in the .env file
+    files_path = env_variables.get("FILES_PATH")
+
+    # Get the INTERMEDIATE_FILES_PATH
+    intermediate_files_path = env_variables.get("INTERMEDIATE_FILES_PATH")
 
     # Read the configuration file
     logger.info("Loading the JSON configuration file")
@@ -28,42 +39,6 @@ def ingest_weather_codes():
     except Exception as e:
         logger.error(f"Error loading the JSON configuration file: {e}")
         return
-
-    # Load the environment variables from the .env file
-    logger.info("Loading content from .env file")
-    env_loaded = load_dotenv(path / ".env")
-
-    if not env_loaded:
-        logger.error(
-            "Could not find the .env file. Please check the README file, and create the .env file."
-        )
-        return
-    else:
-        logger.info("The .env file has been loaded successfully.")
-
-    # Check if the FILES_PATH is present in the .env file
-    files_path_env = os.getenv("FILES_PATH")
-
-    if files_path_env:
-        files_path = path / files_path_env
-    else:
-        files_path = path / "files"
-        logger.warning(
-            f"FILES_PATH not found in the .env file, using {files_path} as default."
-        )
-
-    # Check if the INTERMEDIATE_FILES_PATH is present in the .env file
-    intermediate_files_path_env = os.getenv("INTERMEDIATE_FILES_PATH")
-
-    if intermediate_files_path_env:
-        intermediate_files_path = path / intermediate_files_path_env
-    else:
-        intermediate_files_path = path / "data/intermediate"
-        logger.warning(
-            f"LOADED_FILES_PATH not found in the .env file, using {intermediate_files_path}."
-        )
-
-    logger.info(".env file loaded successfully.")
 
     # Fetch the data
     file_name = (
@@ -77,8 +52,11 @@ def ingest_weather_codes():
         logger.info(f"Loading weather codes data from file {csv_path}.")
         df = pd.read_csv(csv_path, sep=",")
     except Exception as e:
-        logger.error(f"The file {csv_path} was not found.")
+        logger.error(f"Error loading the CSV file: {e}.")
         return
+    
+    # Add ingestion date column
+    df["ingestion_date"] = pd.Timestamp.now()
 
     # Store the data
     weather_codes_table_name = (
@@ -91,10 +69,9 @@ def ingest_weather_codes():
     try:
         logger.info(f"Saving the file to {parquet_path}")
         df.to_parquet(parquet_path, index=False)
-        logger.info("Parquet file saved successfully.")
+        logging.info("Ingestion of weather codes data successful.")
     except Exception as e:
-        logger.error(f"Error saving the file: {e}")
-
+        logger.error(f"Error saving the Parquet file: {e}")
 
 if __name__ == "__main__":
     ingest_weather_codes()
