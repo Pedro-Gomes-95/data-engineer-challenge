@@ -165,7 +165,7 @@
     "loading_layer": {
         "weather_data": {
             "table_name": "weather_data",
-            "processed_files": "processed_files"
+            "logging_file": "processed_files"
         },
         "weather_codes": {
             "table_name": "weather_codes"

@@ -52,16 +52,17 @@ def load_weather_data():
     path = Path(__file__).parent.parent
     env_variables = load_env_variables(path, logger)
 
-    # Get the RAW_FILES_PATH
-    raw_files_path = env_variables.get("RAW_FILES_PATH")
+    # Get the RAW_WEATHER_DATA_PATH
+    raw_files_path = env_variables.get("RAW_WEATHER_DATA_PATH")
 
     # Get the LOADED_FILES_PATH
     loaded_files_path = env_variables.get("LOADED_FILES_PATH")
 
     # Read the configuration file
-    logger.info("Loading the JSON configuration file")
+    config_path = env_variables.get("CONFIG_PATH")
     try:
-        with open(path / "config/config_file.json", "r") as f:
+        logger.info("Loading the JSON configuration file")
+        with open(config_path, "r") as f:
             config = json.load(f)
     except Exception as e:
         logger.error(f"Error loading the JSON configuration file: {e}")
@@ -78,7 +79,7 @@ def load_weather_data():
     processed_files_file_name = (
         config.get("loading_layer", {})
         .get("weather_data", {})
-        .get("processed_files", "processed_files")
+        .get("logging_file", "processed_files")
     )
 
     # Get existing data

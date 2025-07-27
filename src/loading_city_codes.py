@@ -35,16 +35,17 @@ def load_city_codes():
     path = Path(__file__).parent.parent
     env_variables = load_env_variables(path, logger)
 
-    # Check if the RAW_FILES_PATH is present in the .env file
-    raw_files_path = env_variables.get("RAW_FILES_PATH")
+    # Check if the RAW_CITY_CODES_PATH is present in the .env file
+    raw_files_path = env_variables.get("RAW_CITY_CODES_PATH")
 
     # Get the LOADED_FILES_PATH
     loaded_files_path = env_variables.get("LOADED_FILES_PATH")
 
     # Read the configuration file
-    logger.info("Loading the JSON configuration file")
+    config_path = env_variables.get("CONFIG_PATH")
     try:
-        with open(path / "config/config_file.json", "r") as f:
+        logger.info("Loading the JSON configuration file")
+        with open(config_path, "r") as f:
             config = json.load(f)
     except Exception as e:
         logger.error(f"Error loading the JSON configuration file: {e}")
@@ -54,7 +55,7 @@ def load_city_codes():
     file_name = (
         config.get("ingestion_layer", {})
         .get("city_codes", {})
-        .get("file_name", "city_codes")
+        .get("file_name", "city_codes.json")
     )
     json_path = raw_files_path / file_name
 
