@@ -6,7 +6,7 @@ import pandas as pd
 from pathlib import Path
 from dotenv import load_dotenv
 
-from utils.auxiliary_functions import flatten_json, flatten_schema
+from utils.auxiliary_functions import flatten_json, flatten_schema, load_env_variables
 
 logger = logging.getLogger("loading")
 logger.setLevel(logging.DEBUG)
@@ -18,91 +18,65 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-def loading():
-    # os.environ.pop("API_KEY")
-    # os.environ.pop("RAW_FILES_PATH")
-    # os.environ.pop("PROCESSED_FILES_PATH")
+def load_weather_data():
+    logger.info("Starting loading process of weather data from the API")
 
+    # Load the environment variables
     path = Path(__file__).parent.parent
+    env_variables = load_env_variables(path, logger)
+
+    # Get the RAW_FILES_PATH
+    raw_files_path = env_variables.get("RAW_FILES_PATH")
+
+    # Get the INTERMEDIATE_FILES_PATH
+    intermediate_files_path = env_variables.get("INTERMEDIATE_FILES_PATH")
 
     # Read the configuration file
     logger.info("Loading the JSON configuration file")
+    try:
+        with open(path / "config/config_file.json", "r") as f:
+            config = json.load(f)
+    except Exception as e:
+        logger.error(f"Error loading the JSON configuration file: {e}")
+        return
 
-    with open(path / "config/config_file.json", "r") as f:
-        config = json.load(f)
-
-    logger.info("Configuration file loaded successfully.")
-
-    weather_table_name = config.get("intermediate_layer", {}).get(
-        "table_name", "weather_data"
+    weather_table_name = (
+        config.get("intermediate_layer", {})
+        .get("weather_data", {})
+        .get("table_name", "weather_data")
     )
 
-    # Load the environment variables from the env file
-    logger.info("Loading content from .env file")
-
-    env_loaded = load_dotenv(path / ".env")
-
-    if not env_loaded:
-        raise FileNotFoundError(
-            "Could not find the .env file. Please check the README file, and create the .env file."
-        )
-    else:
-        logger.info("The .env file has been loaded successfully.")
-
-    # Check if the RAW_FILES_PATH is present in the .env file
-    raw_files_path_env = os.getenv("RAW_FILES_PATH")
-
-    if raw_files_path_env:
-        raw_files_path = path / os.getenv("RAW_FILES_PATH")
-    else:
-        raw_files_path = path / "data/raw"
-        logger.warning(
-            f"RAW_FILES_PATH not found in the .env file, using {raw_files_path} as default."
-        )
-
-    # Check if the INTERMEDIATE_FILES_PATH is present in the .env file
-    intermediate_files_path_env = os.getenv("INTERMEDIATE_FILES_PATH")
-
-    if intermediate_files_path_env:
-        intermediate_files_path = path / os.getenv("INTERMEDIATE_FILES_PATH")
-    else:
-        intermediate_files_path = path / "data/intermediate"
-        logger.warning(
-            f"LOADED_FILES_PATH not found in the .env file, using {intermediate_files_path}."
-        )
-
     # Get existing data
-    if os.path.exists(intermediate_files_path / f"{weather_table_name}.parquet"):
-        logger.info(
-            f"Loading data from the Parquet {intermediate_files_path}/{weather_table_name} file"
-        )
-        df = pd.read_parquet(intermediate_files_path / f"{weather_table_name}.parquet")
+    file_path = intermediate_files_path / f"{weather_table_name}.parquet"
+
+    if os.path.exists(file_path):
+        logger.info(f"Loading data from the Parquet {file_path} file")
+        df = pd.read_parquet(file_path)
     else:
-        logger.info(
-            f"The Parquet file {intermediate_files_path}/{weather_table_name} was not found."
-        )
+        logger.info(f"The Parquet file {file_path} was not found.")
         df = pd.DataFrame()
 
     # Get the list of processed files
-    if os.path.exists(intermediate_files_path / "processed_files.txt"):
-        logger.info("Loading processed files from the processed_files.txt file")
-        with open(intermediate_files_path / "processed_files.txt", "r") as f:
+    text_file_path = intermediate_files_path / "processed_files.txt"
+
+    if os.path.exists(text_file_path):
+        logger.info(f"Loading processed files from the processed_files.txt file.")
+        with open(text_file_path, "r") as f:
             processed_files = f.read().splitlines()
     else:
-        logger.info(
-            f"The file {intermediate_files_path}/processed_files.txt was not found."
-        )
+        logger.info(f"The file {text_file_path} was not found.")
         processed_files = []
 
-    # If data does not exist but the text file does, delete the text file and restart everything
+    # If the data does not exist but the text file does, delete the text file and load all data
     if df.empty and processed_files:
         logger.info(
             "Parquet file does not exist but processed_files.txt exists. Deleting processed_files.txt and starting from scratch."
         )
-        os.remove(intermediate_files_path / "processed_files.txt")
+        os.remove(text_file_path)
         processed_files = []
 
-    # If data does exist but the text file does not, use the file_name column to know processed_files
+    # If the data does exist but the text file does not, use the file_name column in the Parquet file to infer the the processed files
+    # If the column is not present in the data, load all data
     elif (not df.empty) and (not processed_files):
         if "file_name" not in df.columns:
             logger.info(
@@ -115,44 +89,47 @@ def loading():
                 "Parquet file exists but processed_files.txt is empty. Getting processed files from the Parquet file."
             )
             processed_files = df["file_name"].unique().tolist()
+
+    # If both exist, check if there is a mismatch in the processed files between both
     elif (not df.empty) and processed_files:
         if "file_name" in df.columns:
             processed_files_in_parquet = set(df["file_name"].unique().tolist())
             processed_files_in_txt = set(processed_files)
 
-            if len(processed_files_in_parquet) > len(processed_files_in_txt):
+            difference_parquet_txt = processed_files_in_parquet - processed_files_in_txt
+            difference_txt_parquet = processed_files_in_txt - processed_files_in_parquet
+
+            # Corner case 1: there are more processed files in the Parquet than those listed in the txt file
+            if difference_parquet_txt:
                 logger.info(
                     "There are more processed files in the Parquet file than in the text file. Updating the text file."
                 )
 
-                difference_processed_files = (
-                    processed_files_in_parquet - processed_files_in_txt
-                )
-                with open(intermediate_files_path / "processed_files.txt", "a") as f:
-                    for file in difference_processed_files:
+                with open(text_file_path, "a") as f:
+                    for file in difference_parquet_txt:
                         f.write(f"{file}\n")
 
-                processed_files.extend(difference_processed_files)
+                processed_files.extend(difference_parquet_txt)
 
-            elif len(processed_files_in_parquet) < len(processed_files_in_txt):
+            # Corner case 2: there are more processed files in the txt file than in the Parquet
+            elif difference_txt_parquet:
                 logger.info(
                     "There are more processed files in the text file than in the Parquet file. These will be deleted from the text file."
                 )
 
-                with open(intermediate_files_path / "processed_files.txt", "w") as f:
+                with open(text_file_path, "w") as f:
                     for file in processed_files_in_parquet:
                         f.write(f"{file}\n")
 
                 processed_files = processed_files_in_parquet
+
             else:
                 logger.info(
-                    "The processed files in the Parquet file and the text file are matching."
+                    "The processed files in the Parquet file and the text file match."
                 )
 
     # Get the flattened schema
-    list_fields = config.get("ingestion_layer", {}).get(
-        "api", {}).get("fields", {})
-    
+    list_fields = config.get("ingestion_layer", {}).get("api", {}).get("fields", {})
     schema_flattened = flatten_schema(schema_dict=list_fields, logger=logger)
 
     # Iterate through the different city directories and process the files to a single table
@@ -162,10 +139,8 @@ def loading():
     new_files_ingestion_timestamps = []
 
     for city in config["cities"]:
-        logger.info(f"Processing files for city {city}")
-
-        city_name = city["name"]
-        files_path = raw_files_path / city_name
+        logger.info(f"Processing files for city: {city}")
+        files_path = raw_files_path / city
 
         # If the directory does not exist, skip loading
         if not os.path.exists(files_path):
@@ -180,9 +155,8 @@ def loading():
 
         # Iterate through new files
         for file in new_files:
-            file_path = files_path / file
-
             logger.info(f"Processing file {file_path}")
+            file_path = files_path / file
 
             try:
                 with open(file_path, "r") as f:
@@ -198,11 +172,10 @@ def loading():
                 for field in missing_fields:
                     data_flattened[field] = None
 
-                # Append 
+                # Append
                 new_files_list.append(data_flattened)
                 new_file_names.append(file)
                 new_files_ingestion_timestamps.append(pd.Timestamp.now())
-
                 new_files_processed += 1
 
             except Exception as e:
@@ -224,27 +197,21 @@ def loading():
 
         try:
             # Save the dataframe as a parquet
-            logger.info(
-                f"Saving the DataFrame to {intermediate_files_path}/{weather_table_name}.parquet"
-            )
-            df.to_parquet(
-                intermediate_files_path / f"{weather_table_name}.parquet", index=False
-            )
+            logger.info(f"Saving the DataFrame to {file_path}.")
+            df.to_parquet(file_path, index=False)
             logger.info("DataFrame saved successfully.")
 
             # Save the processed files list
-            logger.info(
-                f"Saving the processed files list to {intermediate_files_path}/processed_files.txt"
-            )
-            with open(intermediate_files_path / "processed_files.txt", "a") as f:
+            logger.info(f"Saving the processed files list to {text_file_path}.")
+            with open(text_file_path, "a") as f:
                 for file in new_file_names:
                     f.write(f"{file}\n")
-
             logger.info(f"Successfuly loaded {new_files_processed} new files.")
 
         except Exception as e:
             logger.error(f"Error saving the DataFrame or processed files: {e}")
 
+    logger.info("Loading process of weather data from the API finalized.")
 
 if __name__ == "__main__":
-    loading()
+    load_weather_data()

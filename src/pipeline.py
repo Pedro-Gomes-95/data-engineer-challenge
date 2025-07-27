@@ -3,8 +3,9 @@ import logging
 from setup import setup
 from ingestion_weather_data import ingest_weather_data
 from ingestion_weather_codes import ingest_weather_codes
-from loading import loading
-from processing import processing
+from ingestion_city_codes import ingest_city_codes
+from loading_weather_data import load_weather_data
+from processing_weather_data import process_weather_data
 
 logger = logging.getLogger("pipeline")
 logger.setLevel(logging.INFO)
@@ -16,22 +17,12 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 if __name__ == "__main__":
-    logger.info("Starting setup process")
+    logger.info("Starting the pipeline")
     setup()
-    logger.info("Setup successfuly completed.")
-
-    logger.info("Ingesting weather code data")
     ingest_weather_codes()
-    logger.info("Ingestion of weather codes successfuly completed.")
-
-    logger.info("Starting ingestion process")
+    ingest_city_codes()
     ingest_weather_data()
-    logger.info("Ingestion successfuly completed.")
+    load_weather_data()
+    process_weather_data()
 
-    logger.info("Starting loading process")
-    loading()
-    logger.info("Ingestion loading completed.")
-
-    logger.info("Starting processing process")
-    processing()
-    logger.info("Processing completed.")
+    logger.info("Pipeline completed.")

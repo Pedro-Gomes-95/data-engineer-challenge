@@ -20,7 +20,7 @@ logger.addHandler(handler)
 
 
 def ingest_weather_data():
-    logger.info("Starting ingestion process of data from the API")
+    logger.info("Starting ingestion process of weather data from the API")
 
     # Load the environment variables
     path = Path(__file__).parent.parent
