@@ -15,18 +15,30 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-def ingest_weather_codes():
+def load_weather_codes():
+    """
+    Loads the data regarding weather codes into a Parquet file. The data is read from a CSV file
+    generated from the information available in https://openweathermap.org/weather-conditions
+
+    Steps:
+        1. Load the environment variables.
+        2. Retrieve relevant fields for the task from the config.json.
+        3. Read the CSV file containing weather code information as a DataFrame.
+        4. Add an ingestion_date column, indicating the moment the data was processed.
+        5. Save the DataFrame to a Parquet file under the data/loaded folder.
+    """
+
     logging.info("Starting ingestion process of weather codes")
 
     # Load the environment variables
     path = Path(__file__).parent.parent
     env_variables = load_env_variables(path, logger)
 
-    # Check if the FILES_PATH is present in the .env file
-    files_path = env_variables.get("FILES_PATH")
+    # Check if the RAW_FILES_PATH is present in the .env file
+    raw_files_path = env_variables.get("RAW_FILES_PATH")
 
-    # Get the INTERMEDIATE_FILES_PATH
-    intermediate_files_path = env_variables.get("INTERMEDIATE_FILES_PATH")
+    # Get the LOADED_FILES_PATH
+    loaded_files_path = env_variables.get("LOADED_FILES_PATH")
 
     # Read the configuration file
     logger.info("Loading the JSON configuration file")
@@ -41,9 +53,9 @@ def ingest_weather_codes():
     file_name = (
         config.get("ingestion_layer", {})
         .get("weather_codes", {})
-        .get("file_name", "weather_codes")
+        .get("file_name", "weather_codes.csv")
     )
-    csv_path = files_path / f"{file_name}.csv"
+    csv_path = raw_files_path / file_name
 
     try:
         logger.info(f"Loading weather codes data from file {csv_path}.")
@@ -57,16 +69,15 @@ def ingest_weather_codes():
 
     # Store the data
     weather_codes_table_name = (
-        config.get("intermediate_layer", {})
+        config.get("loading_layer", {})
         .get("weather_codes", {})
         .get("file_name", "weather_codes")
     )
-    parquet_path = intermediate_files_path / f"{weather_codes_table_name}.parquet"
+    parquet_path = loaded_files_path / f"{weather_codes_table_name}.parquet"
 
     try:
         logger.info(f"Saving the file to {parquet_path}")
         df.to_parquet(parquet_path, index=False)
-        logging.info("Ingestion of weather codes data successful.")
     except Exception as e:
         logger.error(f"Error saving the Parquet file: {e}")
 
@@ -74,4 +85,4 @@ def ingest_weather_codes():
 
 
 if __name__ == "__main__":
-    ingest_weather_codes()
+    load_weather_codes()

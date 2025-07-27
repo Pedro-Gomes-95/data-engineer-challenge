@@ -20,18 +20,24 @@ def load_env_variables(path: Path, logger: Logger) -> dict:
         If the .env file is not found, these take default
     """
 
+    if not isinstance(path, Path):
+        try:
+            path = Path(path)
+        except Exception as e:
+            logger.error(f"Error converting {path} to Path: {e}")
+            return {}
+
     logger.info("Loading env variables from .env file")
     env_loaded = load_dotenv(path / ".env")
 
     if not env_loaded:
         logger.error(
-            "Could not find the .env file. Please check the README file, and create it. \ "
+            "Could not find the .env file. Please check the README file, and create it."
             "Default values will be used for the environment variables, except the API_KEY."
         )
 
     return {
         "API_KEY": os.getenv("API_KEY"),
-        "FILES_PATH": path / os.getenv("FILES_PATH", "files"),
         "RAW_FILES_PATH": path / os.getenv("RAW_FILES_PATH", "data/raw"),
         "LOADED_FILES_PATH": path / os.getenv("LOADED_FILES_PATH", "data/loaded"),
         "PROCESSED_FILES_PATH": path

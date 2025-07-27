@@ -156,10 +156,10 @@
             }
         },
         "weather_codes": {
-            "file_name": "weather_codes"
+            "file_name": "weather_codes.csv"
         },
         "city_codes": {
-            "file_name": "city_codes"
+            "file_name": "city_codes.json"
         }
     },
     "loading_layer": {
