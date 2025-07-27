@@ -3,11 +3,13 @@
         "Lisbon",
         "Braga"
     ],
+    "api": {
+        "base_url": "https://api.openweathermap.org/data/2.5/weather",
+        "units": "metric",
+        "language": "en"
+    },
     "ingestion_layer": {
-        "api": {
-            "base_url": "https://api.openweathermap.org/data/2.5/weather",
-            "units": "metric",
-            "language": "en",
+        "weather_data": {
             "fields": {
                 "coord": {
                     "type": "dict",

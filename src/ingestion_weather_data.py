@@ -4,12 +4,11 @@ import logging
 import pandas as pd
 
 from pathlib import Path
-from dotenv import load_dotenv
 
 from utils.weather_api_client import WeatherAPIClient
 from utils.auxiliary_functions import load_env_variables, create_directory
 
-logger = logging.getLogger("ingestion")
+logger = logging.getLogger("ingestion_weather_data")
 logger.setLevel(logging.INFO)
 
 handler = logging.StreamHandler()
@@ -43,13 +42,11 @@ def ingest_weather_data():
         raise
 
     # Get API and City information
-    base_url = (
-        config.get("ingestion_layer", {})
-        .get("api", {})
-        .get("base_url", "https://api.openweathermap.org/data/2.5/weather")
+    base_url = config.get("api", {}).get(
+        "base_url", "https://api.openweathermap.org/data/2.5/weather"
     )
-    units = config.get("ingestion_layer", {}).get("api", {}).get("units", "metric")
-    language = config.get("ingestion_layer", {}).get("api", {}).get("language", "en")
+    units = config.get("api", {}).get("units", "metric")
+    language = config.get("api", {}).get("language", "en")
     city_configuration = config.get("cities", [])
 
     # Get the RAW_FILES_PATH

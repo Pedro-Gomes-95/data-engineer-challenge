@@ -1,10 +1,8 @@
-import os
 import json
 import logging
 import pandas as pd
 
 from pathlib import Path
-
 from utils.auxiliary_functions import load_env_variables, expand_dictionary_column
 
 logger = logging.getLogger("ingestion_city_codes")
