@@ -19,14 +19,29 @@ logger.addHandler(handler)
 
 
 def process_weather_codes():
+    """
+    Processes the data regarding weather codes.
+
+    Steps:
+        1. Load the environment variables.
+        2. Retrieve relevant fields for the task from the config.json.
+        3. Read the loaded/weather_codes Parquet file.
+        4. Strip the columns of unwanted spaces.
+        5. Cast the columns to their respective types based on the configuration provided in
+           the config.json file.
+        6. Rename and reorder the columns.
+        7. Add the ingestion date column.
+        8. Save the data as Parquet to the processed/ directory.
+    """
+
     logger.info("Starting processing of weather codes")
 
     # Load the environment variables
     path = Path(__file__).parent.parent
     env_variables = load_env_variables(path, logger)
 
-    # Get the INTERMEDIATE_FILES_PATH
-    intermediate_files_path = env_variables.get("INTERMEDIATE_FILES_PATH")
+    # Get the LOADED_FILES_PATH
+    loaded_files_path = env_variables.get("LOADED_FILES_PATH")
 
     # Get the PROCESSED_FILES_PATH
     processed_files_path = env_variables.get("PROCESSED_FILES_PATH")
@@ -42,12 +57,12 @@ def process_weather_codes():
 
     # File to read from
     loaded_weather_codes = (
-        config.get("intermediate_layer", {})
+        config.get("loading_layer", {})
         .get("weather_codes", {})
         .get("table_name", "weather_codes")
     )
     loaded_weather_codes_file = (
-        intermediate_files_path / f"{loaded_weather_codes}.parquet"
+        loaded_files_path / f"{loaded_weather_codes}.parquet"
     )
 
     # File to write to
@@ -109,7 +124,6 @@ def process_weather_codes():
     try:
         logger.info(f"Saving the DataFrame to {processed_weather_codes_file}.")
         df.to_parquet(processed_weather_codes_file, index=False)
-        logger.info("DataFrame saved successfully.")
     except Exception as e:
         logger.error(f"Error saving the DataFrame: {e}")
 
