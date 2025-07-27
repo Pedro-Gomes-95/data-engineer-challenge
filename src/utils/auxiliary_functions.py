@@ -1,5 +1,61 @@
+import os
 import pandas as pd
+
+from pathlib import Path
+from dotenv import load_dotenv
 from logging import Logger
+
+
+def load_env_variables(path: Path, logger: Logger) -> dict:
+    """
+    Loads the environment variables in the .env file, assumed to be located
+    in the path 'path'.
+
+    Args:
+        path (Path): the path containing the .env file.
+        logger (Logger): logger.
+
+    Returns:
+        dict: a dictionary containing the env variables, and their values.
+        If the .env file is not found, these take default
+    """
+
+    logger.info("Loading env variables from .env file")
+    env_loaded = load_dotenv(path / ".env")
+
+    if not env_loaded:
+        logger.error(
+            "Could not find the .env file. Please check the README file, and create it. \ "
+            "Default values will be used for the environment variables, except the API_KEY."
+        )
+
+    return {
+        "API_KEY": os.getenv("API_KEY"),
+        "FILES_PATH": path / os.getenv("FILES_PATH", "files"),
+        "RAW_FILES_PATH": path / os.getenv("RAW_FILES_PATH", "data/raw"),
+        "INTERMEDIATE_FILES_PATH": path
+        / os.getenv("INTERMEDIATE_FILES_PATH", "data/intermediate/"),
+        "PROCESSED_FILES_PATH": path
+        / os.getenv("PROCESSED_FILES_PATH", "data/processed/"),
+    }
+
+
+def create_directory(path: Path, logger: Logger) -> None:
+    """
+    Creates a directory from the provided 'path'. If it already exists,
+    nothing is done.
+
+    Args:
+        path (Path): the directory to be created
+        logger (Logger): logger.
+    """
+
+    if os.path.exists(path):
+        logger.info(f"Directory {path} already exists.")
+    else:
+        logger.info(f"Creating directory {path}")
+        os.makedirs(path)
+        logger.info(f"Directory created.")
 
 
 def flatten_json(data_json: dict, logger: Logger, parent_field: str = None) -> dict:
@@ -24,7 +80,7 @@ def flatten_json(data_json: dict, logger: Logger, parent_field: str = None) -> d
             ...
         }
 
-    Arguments:
+    Args:
         data_json (dict): the input dictionary to be flattened.
         parent_field (str): for a nested structure, where one key has a dictionary
         as the value, parent_field consists of this key.
@@ -83,7 +139,7 @@ def flatten_schema(schema_dict: dict, logger: Logger, parent_field: str = None) 
             ...
         }
 
-    Arguments:
+    Args:
         schema_dict (dict): the input dictionary to be flattened.
         parent_field (str): for a nested structure, where one key has a dictionary
         as the value, parent_field consists of this key.
@@ -135,7 +191,7 @@ def cast_columns(df: pd.DataFrame, column_types: dict, logger: Logger):
         - The column does not exist in the DataFrame
         - Casting was unsuccessful
 
-    Arguments:
+    Args:
         df (pd.DataFrame): the input DataFrame.
         column_types (str): the mapping of each to column to its type.
         logger (Logger): logger.
@@ -170,7 +226,7 @@ def expand_dictionary_column(
         - The column does not exist in the DataFrame
         - The column exists, but is not of type dictionary.
 
-    Arguments:
+    Args:
         df (pd.DataFrame): the input DataFrame.
         column (str): the column to expand into multiple columns.
         logger (Logger): logger.
