@@ -72,7 +72,7 @@ def load_weather_codes():
     weather_codes_table_name = (
         config.get("loading_layer", {})
         .get("weather_codes", {})
-        .get("file_name", "weather_codes")
+        .get("table_name", "weather_codes_loaded")
     )
     parquet_path = loaded_files_path / f"{weather_codes_table_name}.parquet"
 

@@ -73,7 +73,7 @@ def load_weather_data():
     weather_table_name = (
         config.get("loading_layer", {})
         .get("weather_data", {})
-        .get("table_name", "weather_data")
+        .get("table_name", "weather_data_loaded")
     )
 
     processed_files_file_name = (

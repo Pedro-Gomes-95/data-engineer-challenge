@@ -20,12 +20,7 @@ def setup():
 
     Steps:
         1. Load the environment variables.
-        2. Create the RAW_FILES_PATH
-            Contains the JSON files resulting from the API calls to the Weather API.
-        3. Create the LOADING_FILES_PATH
-            Contains the data loaded from the raw files in the form of Parquet files.
-        4. Create the PROCESSED_FILES_PATH
-            Contains the clean Parquet files.
+        2. Create the paths mentioned in the environment variables if they don't exist.
 
     Raises:
         ValueError: if no API_KEY is provided in the .env file, an error is raised.

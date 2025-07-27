@@ -77,7 +77,7 @@ def load_city_codes():
     city_codes_table_name = (
         config.get("loading_layer", {})
         .get("city_codes", {})
-        .get("table_name", "city_codes")
+        .get("table_name", "city_codes_loaded")
     )
     parquet_path = loaded_files_path / f"{city_codes_table_name}.parquet"
 
