@@ -19,6 +19,20 @@ logger.addHandler(handler)
 
 
 def ingest_weather_data():
+    """
+    Ingests weather data by making calls to the Weather API and storing the result as a JSON file.
+
+    Steps:
+        1. Load the environment variables.
+        2. Retrieve relevant fields for the task from the config.json.
+        3. For a list of cities provided in the config.json, make calls to the weather API
+           and retrieve weather information.
+        4. Store the files.
+
+    Raises:
+        ValueError: if no API_KEY is provided in the .env file, an error is raised.
+    """
+
     logger.info("Starting ingestion process of weather data from the API")
 
     # Load the environment variables
@@ -47,7 +61,7 @@ def ingest_weather_data():
     )
     units = config.get("api", {}).get("units", "metric")
     language = config.get("api", {}).get("language", "en")
-    city_configuration = config.get("cities", [])
+    cities = config.get("cities", [])
 
     # Get the RAW_FILES_PATH
     raw_files_path = env_variables.get("RAW_FILES_PATH")
@@ -62,7 +76,7 @@ def ingest_weather_data():
     )
 
     # Fetch the data
-    for city in city_configuration:
+    for city in cities:
         logger.info(f"Fetching weather data for city {city}")
         city_weather_data = api_client.fetch_data(city=city)
 
