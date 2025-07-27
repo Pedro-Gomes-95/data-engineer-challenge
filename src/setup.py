@@ -14,6 +14,23 @@ logger.addHandler(handler)
 
 
 def setup():
+    """
+    Sets up the environment variables and creates the directories that will
+    store the data.
+
+    Steps:
+        1. Load the environment variables.
+        2. Create the RAW_FILES_PATH
+            Contains the JSON files resulting from the API calls to the Weather API.
+        3. Create the LOADING_FILES_PATH
+            Contains the data loaded from the raw files in the form of Parquet files.
+        4. Create the PROCESSED_FILES_PATH
+            Contains the clean Parquet files.
+
+    Raises:
+        ValueError: if no API_KEY is provided in the .env file, an error is raised.
+    """
+
     logger.info("Starting setup process")
 
     # Load the environment variables
@@ -30,8 +47,8 @@ def setup():
     # Get the RAW_FILES_PATH
     raw_files_path = env_variables.get("RAW_FILES_PATH")
 
-    # Get the INTERMEDIATE_FILES_PATH
-    intermediate_files_path = env_variables.get("INTERMEDIATE_FILES_PATH")
+    # Get the LOADED_FILES_PATH
+    loaded_files_path = env_variables.get("LOADED_FILES_PATH")
 
     # Get the PROCESSED_FILES_PATH
     processed_files_path = env_variables.get("PROCESSED_FILES_PATH")
@@ -40,7 +57,7 @@ def setup():
     create_directory(path=raw_files_path, logger=logger)
 
     # Create the LOADED_FILES_PATH if it doesn't exist
-    create_directory(path=intermediate_files_path, logger=logger)
+    create_directory(path=loaded_files_path, logger=logger)
 
     # Create the PROCESSED_FILES_PATH if it doesn't exist
     create_directory(path=processed_files_path, logger=logger)

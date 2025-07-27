@@ -162,9 +162,10 @@
             "file_name": "city_codes"
         }
     },
-    "intermediate_layer": {
+    "loading_layer": {
         "weather_data": {
-            "table_name": "weather_data"
+            "table_name": "weather_data",
+            "processed_files": "processed_files"
         },
         "weather_codes": {
             "table_name": "weather_codes"
