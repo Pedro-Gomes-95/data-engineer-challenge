@@ -33,10 +33,9 @@ def load_env_variables(path: Path, logger: Logger) -> dict:
         "API_KEY": os.getenv("API_KEY"),
         "FILES_PATH": path / os.getenv("FILES_PATH", "files"),
         "RAW_FILES_PATH": path / os.getenv("RAW_FILES_PATH", "data/raw"),
-        "INTERMEDIATE_FILES_PATH": path
-        / os.getenv("INTERMEDIATE_FILES_PATH", "data/intermediate/"),
+        "LOADED_FILES_PATH": path / os.getenv("LOADED_FILES_PATH", "data/loaded"),
         "PROCESSED_FILES_PATH": path
-        / os.getenv("PROCESSED_FILES_PATH", "data/processed/"),
+        / os.getenv("PROCESSED_FILES_PATH", "data/processed"),
     }
 
 
