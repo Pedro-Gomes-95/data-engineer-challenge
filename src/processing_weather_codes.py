@@ -6,9 +6,9 @@ import pandas as pd
 from pathlib import Path
 from dotenv import load_dotenv
 
-from utils.auxiliary_functions import cast_columns, flatten_schema, load_env_variables
+from utils.auxiliary_functions import cast_columns, load_env_variables, flatten_schema
 
-logger = logging.getLogger("processing_weather_data")
+logger = logging.getLogger("processing_weather_codes")
 logger.setLevel(logging.DEBUG)
 
 handler = logging.StreamHandler()
@@ -18,8 +18,8 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-def process_weather_data():
-    logger.info("Starting processing of weather data")
+def process_weather_codes():
+    logger.info("Starting processing of weather codes")
 
     # Load the environment variables
     path = Path(__file__).parent.parent
@@ -40,45 +40,52 @@ def process_weather_data():
         logger.error(f"Error loading the JSON configuration file: {e}")
         return
 
-    loaded_weather_data = (
+    # File to read from
+    loaded_weather_codes = (
         config.get("intermediate_layer", {})
-        .get("weather_data", {})
-        .get("table_name", "weather_data")
+        .get("weather_codes", {})
+        .get("table_name", "weather_codes")
     )
-    loaded_weather_data_file = (
-        intermediate_files_path / f"{loaded_weather_data}.parquet"
+    loaded_weather_codes_file = (
+        intermediate_files_path / f"{loaded_weather_codes}.parquet"
     )
 
-    processed_weather_data = (
+    # File to write to
+    processed_weather_codes = (
         config.get("processing_layer", {})
-        .get("weather_data", {})
-        .get("table_name", "weather_data_processed")
+        .get("weather_codes", {})
+        .get("table_name", "weather_codes_processed")
     )
-    processed_weather_data_file = (
-        processed_files_path / f"{processed_weather_data}.parquet"
+    processed_weather_codes_file = (
+        processed_files_path / f"{processed_weather_codes}.parquet"
     )
 
+    # Dictionary for column renaming
     columns_rename = (
         config.get("processing_layer", {})
-        .get("weather_data", {})
+        .get("weather_codes", {})
         .get("columns_rename", {})
     )
 
-    list_fields = config.get("ingestion_layer", {}).get("api", {}).get("fields", {})
+    # List of fields and their types for conversion
+    list_fields = (
+        config.get("processing_layer", {}).get("weather_codes", {}).get("fields", {})
+    )
 
-    if os.path.exists(loaded_weather_data_file):
-        logger.info(f"Loading data from the Parquet file {loaded_weather_data_file}")
-        df = pd.read_parquet(loaded_weather_data_file)
+    # Check if the file to be processed exists
+    if os.path.exists(loaded_weather_codes_file):
+        logger.info(f"Loading data from the Parquet file {loaded_weather_codes_file}")
+        df = pd.read_parquet(loaded_weather_codes_file)
     else:
-        logger.error(f"The Parquet file {loaded_weather_data_file} was not found.")
+        logger.error(f"The Parquet file {loaded_weather_codes_file} was not found.")
         return
 
-    # Do schema enforcement
-    # Flatten the schema
-    schema_flattened = flatten_schema(schema_dict=list_fields, logger=logger)
+    # Clean the column names
+    stripped_columns = {col: col.strip() for col in df.columns}
+    df = df.rename(columns=stripped_columns, errors="ignore")
 
     # Cast the columns
-    df = cast_columns(df=df, column_types=schema_flattened, logger=logger)
+    df = cast_columns(df=df, column_types=list_fields, logger=logger)
 
     # Rename and reorder the columns
     if not columns_rename:
@@ -100,14 +107,14 @@ def process_weather_data():
 
     # Save the data
     try:
-        logger.info(f"Saving the DataFrame to {processed_weather_data_file}.")
-        df.to_parquet(processed_weather_data_file, index=False)
+        logger.info(f"Saving the DataFrame to {processed_weather_codes_file}.")
+        df.to_parquet(processed_weather_codes_file, index=False)
         logger.info("DataFrame saved successfully.")
     except Exception as e:
         logger.error(f"Error saving the DataFrame: {e}")
 
-    logger.info(f"Processing of weather data finalized.")
+    logger.info(f"Processing of weather codes finalized.")
 
 
 if __name__ == "__main__":
-    process_weather_data()
+    process_weather_codes()

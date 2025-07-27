@@ -77,6 +77,7 @@ def ingest_city_codes():
     except Exception as e:
         logger.error(f"Error saving the Parquet file: {e}")
 
+    logger.info(f"Ingestion of city codes finalized.")
 
 if __name__ == "__main__":
     ingest_city_codes()

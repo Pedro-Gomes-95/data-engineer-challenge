@@ -166,6 +166,9 @@
         },
         "weather_codes": {
             "table_name": "weather_codes"
+        },
+        "city_codes": {
+            "table_name": "city_codes"
         }
     },
     "processing_layer": {
@@ -195,6 +198,38 @@
                 "sys_sunrise": "time_sunrise",
                 "sys_sunset": "time_sunset",
                 "file_name": "file_name"
+            }
+        },
+        "weather_codes": {
+            "table_name": "weather_codes_processed",
+            "fields": {
+                "id": "int64",
+                "main": "string",
+                "description": "string"
+            },
+            "columns_rename": {
+                "id": "id",
+                "main": "short_description",
+                "description": "long_description"
+            }
+        },
+        "city_codes": {
+            "table_name": "city_codes_processed",
+            "fields": {
+                "id": "int64",
+                "name": "string",
+                "state": "string",
+                "country": "string",
+                "coord_lon": "float64",
+                "coord_lat": "float64"
+            },
+            "columns_rename": {
+                "id": "id",
+                "name": "name",
+                "state": "state",
+                "country": "country",
+                "coord_lon": "longitude",
+                "coord_lat": "latitude"
             }
         }
     }

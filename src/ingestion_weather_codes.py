@@ -54,7 +54,7 @@ def ingest_weather_codes():
     except Exception as e:
         logger.error(f"Error loading the CSV file: {e}.")
         return
-    
+
     # Add ingestion date column
     df["ingestion_date"] = pd.Timestamp.now()
 
@@ -72,6 +72,9 @@ def ingest_weather_codes():
         logging.info("Ingestion of weather codes data successful.")
     except Exception as e:
         logger.error(f"Error saving the Parquet file: {e}")
+
+    logger.info(f"Ingestion of weather codes finalized.")
+
 
 if __name__ == "__main__":
     ingest_weather_codes()
