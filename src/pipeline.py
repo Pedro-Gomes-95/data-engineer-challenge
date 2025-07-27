@@ -2,8 +2,8 @@ import logging
 
 from setup import setup
 from ingestion_weather_data import ingest_weather_data
-from ingestion_weather_codes import ingest_weather_codes
-from ingestion_city_codes import ingest_city_codes
+from loading_weather_codes import load_weather_codes
+from loading_city_codes import load_city_codes
 from loading_weather_data import load_weather_data
 from processing_weather_data import process_weather_data
 from processing_weather_codes import process_weather_codes
@@ -21,10 +21,13 @@ logger.addHandler(handler)
 if __name__ == "__main__":
     logger.info("Starting the pipeline")
     setup()
-    ingest_weather_codes()
-    ingest_city_codes()
+
     ingest_weather_data()
+
     load_weather_data()
+    load_weather_codes()
+    load_city_codes()
+
     process_weather_codes()
     process_city_codes()
     process_weather_data()
