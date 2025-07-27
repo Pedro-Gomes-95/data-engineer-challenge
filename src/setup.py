@@ -1,8 +1,6 @@
-import os
 import logging
 
 from pathlib import Path
-
 from utils.auxiliary_functions import load_env_variables, create_directory
 
 logger = logging.getLogger("setup")
