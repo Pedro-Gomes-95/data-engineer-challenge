@@ -38,7 +38,13 @@ def load_env_variables(path: Path, logger: Logger) -> dict:
 
     return {
         "API_KEY": os.getenv("API_KEY"),
-        "RAW_FILES_PATH": path / os.getenv("RAW_FILES_PATH", "data/raw"),
+        "CONFIG_PATH": path / os.getenv("CONFIG_PATH", "config/config_file.json"),
+        "RAW_CITY_CODES_PATH": path
+        / os.getenv("RAW_CITY_CODES_PATH", "data/raw/city_codes"),
+        "RAW_WEATHER_CODES_PATH": path
+        / os.getenv("RAW_WEATHER_CODES_PATH", "data/raw/weather_codes"),
+        "RAW_WEATHER_DATA_PATH": path
+        / os.getenv("RAW_WEATHER_DATA_PATH", "data/raw/weather_data"),
         "LOADED_FILES_PATH": path / os.getenv("LOADED_FILES_PATH", "data/loaded"),
         "PROCESSED_FILES_PATH": path
         / os.getenv("PROCESSED_FILES_PATH", "data/processed"),
