@@ -39,9 +39,9 @@ def setup():
             "API_KEY not found in the .env file. Please insert a valid API key in the file."
         )
 
-    # Create the paths if they don't exist
+    # Create the paths if they don't exist, skipping the files
     for value in env_variables.values():
-        if isinstance(value, Path):
+        if isinstance(value, Path) and (value.suffix == ""):
             create_directory(path=value, logger=logger)
 
     logger.info("Setup successfuly completed.")
