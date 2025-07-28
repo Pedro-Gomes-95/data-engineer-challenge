@@ -181,8 +181,6 @@
                 "dt": "time_value",
                 "timezone": "timezone",
                 "id": "city_id",
-                "coord_lat": "latitude",
-                "coord_lon": "longitude",
                 "weather_id": "weather_id",
                 "visibility": "visibility",
                 "main_temp": "temperature",

@@ -1,13 +1,13 @@
 # Weather data collection
 
 ## Project description
-**Note**: you can find a TL;DR below.
+**Note**: you can find a TL;DR on how to run the pipeline below.
 
-The code in this repository fetches weather data for one or more predefined cities using the Open Weather API. You can find out more about this website in [this](https://openweathermap.org/) link. Details on API calls can be found [here](https://openweathermap.org/current#name). A description of the project is provided below.
+This repository contains code to fetch weather data for one or more predefined cities using the [Open Weather API](https://openweathermap.org/) link. Details about the API can be found [here](https://openweathermap.org/current#name). A full description of the project is provided in the next sections.
 
-⚠️ **IMPORTANT**: in order to access the API, you need an API key. To obtain this key, start by registering in the link provided. You can find the API key in your account page, under the "API key" tab. This key **must** be added to the .env file. This is explained in more detail below.
+⚠️ **IMPORTANT**: Accessing the API requires an API key. To obtain one, create an account on the Open Weather website. After registering, your API key will be available in your account dashboard under the “API key” tab. This key must be added to a `.env` file as described later in this README.
 
-The following information is available after pipeline execution:
+Once the pipeline has been executed, the following outputs will be available:
 
 * Weather data information:  
 
@@ -220,7 +220,9 @@ Stores the Parquet versions of the raw data. Each file consists of transforming 
 Contains the schema-validated, standardized and reformatted datasets ready for analysis. Transformations include (but are not limited to) renaming columns and doing schema enforcement.
 
 #### `src`
-The `src` folder contains the source code for the pipeline, organized by layers, mimicking an ELT logic. Each script is properly documented and contains the relevant information about the steps taken. It contains the following folders:
+The `src` folder contains the source code for the pipeline, organized by layers, mimicking an ELT logic. Each script is properly documented and contains the relevant information about the steps taken within it. The script `pipeline.py` is used to run the entire pipeline, orchestrating the entire data flow. 
+
+This folder contains the following subfolders:
 
 * `setup`  
 Includes the `setup.py` script, which creates the data structure described above, before any processing begins.
@@ -231,9 +233,10 @@ Stores utility scripts, including helper functions (under `auxiliary_functions.p
 * `ingestion`  
 The only script in this folder is `ingestion_weather_data`, which fetches raw weather data from the API and stores them under `raw/data/weather_data`. This script uses the API client logic stored in `utils/weather_api_client.py`.
 
-* `loading`
+* `loading`  
 Handles the transformation of raw files into the Parquet format, with individual scripts for each dataset: `loading_city_codes.py`, `loading_weather_codes.py`, and `loading_weather_data.py`. 
 
-
+* `processing`  
+Contains scripts that process and format the loaded data, making it suited for analysis and visualization. Just like the `loading` layer, each dataset possesses its own individual script.
 
 
