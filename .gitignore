@@ -1,4 +1,4 @@
-.env
+# .env
 data/loaded
 data/processed
 data/raw/weather_data

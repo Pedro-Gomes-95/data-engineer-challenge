@@ -42,31 +42,36 @@ You can replace `weather-data` with any other name if you wish.
 ### Directory structure
 Code separation is the key to staying sane. The directory structure is as follows:
 ```
-├── .env                                    # File containing the API key and path definition
-├── config                                  # Contains 
-│   └── config_file.json
-├── data
-│   ├── loaded
-│   ├── processed
-│   └── raw
-│       ├── city_codes
-│       ├── weather_codes
-│       └── weather_data
-└── src
-    ├── ingestion
-    │   └── ingestion_weather_data.py
-    ├── loading
-    │   ├── loading_city_codes.py
-    │   ├── loading_weather_codes.py
-    │   └── loading_weather_data.py
-    ├── processing
-    │   ├── processing_city_codes.py
-    │   ├── processing_weather_codes.py
-    │   └── processing_weather_data.py
-    ├── setup
-    │   └── setup.py
-    └── utils
-        ├── auxiliary_functions.py
-        ├── input_configuration.py
-        └── weather_api_client.py
+├── .env                                    # API key and path definition
+├── config                                  
+│   └── config_file.json                    # API, city and file definitions
+├── data    
+│   ├── loaded                              # Directory for the loaded data
+│   ├── processed                           # Directory for the processed data
+│   └── raw                                 # Directory for the raw data
+│       ├── city_codes                      
+│       ├── weather_codes                   
+│       └── weather_data                    
+├── src                                     # Source code folder
+|   ├── ingestion                           # Code for ingesting the data
+|   │   └── ingestion_weather_data.py       # Code for making API calls and getting weather data
+|   ├── loading                             # Code for loading the data into Parquet files
+|   │   ├── loading_city_codes.py           
+|   │   ├── loading_weather_codes.py
+|   │   └── loading_weather_data.py
+|   ├── processing                          # Code for processing and cleaning the Parquet files
+|   │   ├── processing_city_codes.py
+|   │   ├── processing_weather_codes.py
+|   │   └── processing_weather_data.py
+|   ├── setup
+|   │   └── setup.py                        # Sets up the folders where the data will be stored
+|   └── utils
+|   │   ├── auxiliary_functions.py          # Aux functions used in the code
+|   │   ├── input_configuration.py          # Input validation to the WeatherAPI class
+|   │   └── weather_api_client.py           # Weather API class
+|   pipeline.py                             # Runs all the code
+├── .dockerignore                           # Docker ignore file
+├── Docker                                  # Dockerfile
+├── requirements.txt                        # Requirements file
+└── README.md                               # This file
 ``` 
