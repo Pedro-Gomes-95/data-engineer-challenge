@@ -1,10 +1,62 @@
 # Weather data collection
 
 ## Project description
+**Note**: you can find a TL;DR below.
 
 The code in this repository fetches weather data for one or more predefined cities using the Open Weather API. You can find out more about this website in [this](https://openweathermap.org/) link. Details on API calls can be found [here](https://openweathermap.org/current#name). A description of the project is provided below.
 
 ⚠️ **IMPORTANT**: in order to access the API, you need an API key. To obtain this key, start by registering in the link provided. You can find the API key in your account page, under the "API key" tab. This key **must** be added to the .env file. This is explained in more detail below.
+
+The following information is available after pipeline execution:
+
+* Weather data information:
+| Field Name              | Description                                                       |
+|-------------------------|-------------------------------------------------------------------|
+| `time_value`            | UTC time of data calculation                                      |
+| `timezone`              | Shift in seconds from UTC                                         |
+| `city_id`               | Unique identifier of the city (used to join with city metadata)   |
+| `weather_id`            | Weather condition code (used to join with weather codes)          |
+| `visibility`            | Visibility distance (meters)                                    |
+| `temperature`           | Current temperature (°C)                                             |
+| `perceived_temperature` | Human perception of temperature  (°C)                                       |
+| `min_temperature`       | Minimum temperature at the moment (°C)                                     |
+| `max_temperature`       | Maximum temperature at the moment (°C)                                     |
+| `atm_pressure_sea_level`| Atmospheric pressure at sea level (hPa)                          |
+| `atm_pressure_ground_level`| Atmospheric pressure at ground level (hPa)                    |
+| `humidity`              | Humidity (%)                                               |
+| `wind_speed`            | Wind speed (m/s)                   |
+| `wind_direction`        | Wind direction (in degrees)                                         |
+| `wind_gust`             | Wind gust speed (if available)                                    |
+| `cloudiness`            | Cloudiness (percentage)                                         |
+| `rain`                  | Precipitation (mm/h)                                 |
+| `snow`                  | Precipitation (mm/h)                                 |
+| `time_sunrise`          | UTC sunrise time                                                |
+| `time_sunset`           | UTC sunset time                                                 |
+| `file_name`             | Name of the source file the data was extracted from               |
+| `ingestion_date`             | Date on which the file was created               |
+
+* Weather code information:
+
+    | Field              | Description                                      |
+    |--------------------|--------------------------------------------------|
+    | `id`               | Unique identifier for the weather condition      |
+    | `short_description`| General category of the weather (e.g., Rain)     |
+    | `long_description` | More detailed description of the weather condition    |
+    | `ingestion_date`             | Date on which the file was created               |
+
+
+* City metadata:  
+
+    | Field        | Description                                      |
+    |--------------|--------------------------------------------------|
+    | `id`         | Unique identifier for the city                   |
+    | `name`       | Name of the city                                 |
+    | `state`      | Name of the state                                |
+    | `country`    | ISO 3166 country code (e.g., "PT")               |
+    | `longitude`  | Geographic longitude coordinate of the city      |
+    | `latitude`   | Geographic latitude coordinate of the city       |
+    | `ingestion_date`             | Date on which the file was created               |
+
 
 ## TL;DR
 If you are short on time, follow the instructions below:
@@ -152,9 +204,9 @@ Settings related to data processing:
 #### `data`
 The `data` directory is organized into 3 folders, each folder reflecting a stage of the pipeline:
 * `data/raw`  
-Contains raw, unprocessed files obtained either from the API or the Open Weather website. Has the following subfolders:
+Contains raw, unprocessed files obtained either from data from the API or the Open Weather website. Has the following subfolders:
 
-    * `weather_data`: stores raw weather data fetched from the OpenWeather API. Each file corresponds to a single city and timestamp, in a JSON format. The files follow the convention `YYYYMMDD_HHMMSS_<city_name>.json`, where YYYY, MM, DD, HH, MM and SS are the where `YYYY`, `MM`, and `DD` represent the year, month, and day of the weather measurement; `HH`, `MM`, and `SS` represent the hour, minute, and second; and `<city_name>` corresponds to the name of the city queried
+    * `weather_data`: stores raw weather data fetched from the Open Weather API. Each file corresponds to a single city and timestamp, in a JSON format. The files follow the convention `YYYYMMDD_HHMMSS_<city_name>.json`, where `YYYY`, `MM`, and `DD` represent the year, month, and day of the weather measurement; `HH`, `MM`, and `SS` represent the hour, minute, and second; and `<city_name>` corresponds to the name of the city queried.
 
     * `weather_codes`: contains descriptive metadata about weather condition codes. Created manually based on the Open Weather documentation, and stored as a CSV.
 
@@ -164,7 +216,23 @@ Contains raw, unprocessed files obtained either from the API or the Open Weather
 Stores the Parquet versions of the raw data. Each file consists of transforming the raw inputs in Parque tables. In the case of weather data, all the JSON files are processed into a single Parquet file.
 
 * `data/processed`  
-Contains the schema-validated, standardized and reformatted datasets ready for analysis. Transformations include renaming columns and doing schema enforcement.
+Contains the schema-validated, standardized and reformatted datasets ready for analysis. Transformations include (but are not limited to) renaming columns and doing schema enforcement.
 
 #### `src`
+The `src` folder contains the source code for the pipeline, organized by layers, mimicking an ELT logic. Each script is properly documented and contains the relevant information about the steps taken. It contains the following folders:
+
+* `setup`  
+Includes the `setup.py` script, which creates the data structure described above, before any processing begins.
+
+* `utils`  
+Stores utility scripts, including helper functions (under `auxiliary_functions.py`) and the API client logic (under `weather_api_client.py`).
+
+* `ingestion`  
+The only script in this folder is `ingestion_weather_data`, which fetches raw weather data from the API and stores them under `raw/data/weather_data`. This script uses the API client logic stored in `utils/weather_api_client.py`.
+
+* `loading`
+Handles the transformation of raw files into the Parquet format, with individual scripts for each dataset: `loading_city_codes.py`, `loading_weather_codes.py`, and `loading_weather_data.py`. 
+
+
+
 
