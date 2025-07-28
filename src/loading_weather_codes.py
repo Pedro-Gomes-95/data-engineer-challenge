@@ -24,6 +24,8 @@ def load_weather_codes():
     Steps:
         1. Load the environment variables.
         2. Retrieve relevant fields for the task from the config.json.
+        3. Check if the source and destination file exist. If both exist, and the source file
+           has not been updated, skip processing. Otherwise, continue with the processing.
         3. Read the CSV file containing weather code information as a DataFrame.
         4. Add an ingestion_date column, indicating the moment the data was processed.
         5. Save the DataFrame to a Parquet file under the data/loaded folder.
@@ -68,7 +70,7 @@ def load_weather_codes():
 
     # If the destination file exists, and the source file hasn't been updated, skip
     if os.path.exists(csv_path) and os.path.exists(parquet_path):
-        json_path_mdate = os.path.getmtime(json_path)
+        json_path_mdate = os.path.getmtime(csv_path)
         parquet_file_mdate = os.path.getmtime(parquet_path)
 
         if parquet_file_mdate > json_path_mdate:

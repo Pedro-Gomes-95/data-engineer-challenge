@@ -24,10 +24,12 @@ def load_city_codes():
     Steps:
         1. Load the environment variables.
         2. Retrieve relevant fields for the task from the config.json.
-        3. Read the JSON file containing city information as a DataFrame.
-        4. Flatten the 'coord' column into separate columns.
-        5. Add an ingestion_date column, indicating the moment the data was processed.
-        6. Save the DataFrame to a Parquet file.
+        3. Check if the source and destination file exist. If both exist, and the source file
+           has not been updated, skip processing. Otherwise, continue with the processing.
+        4. Read the JSON file containing city information as a DataFrame.
+        5. Flatten the 'coord' column into separate columns.
+        6. Add an ingestion_date column, indicating the moment the data was processed.
+        7. Save the DataFrame to a Parquet file.
     """
 
     logging.info("Starting loading process of city codes")
