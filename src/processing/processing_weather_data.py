@@ -126,6 +126,9 @@ def process_weather_data():
             df = df[columns_rename.values()]
         except IndexError as e:
             logger.info(f"Error in reordering the columns: {e}")
+    
+    # Order the columns by city ID and timestamp
+    df = df.sort_values(by=["city_id", "time_value"], ascending=True)
 
     # Add an ingestion date column
     df["ingestion_date"] = pd.Timestamp.now()
