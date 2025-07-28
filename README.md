@@ -11,20 +11,20 @@ Follow these instructions to copy the project to your local machine and run it:
 
 #### 1. Clone the repository
 Make sure you have Git installed in your computer. Clone the repository using Git Bash and the following command:  
-`git clone https://github.com/Pedro-Gomes-95/data-engineer-challenge.git`
+```git clone https://github.com/Pedro-Gomes-95/data-engineer-challenge.git```
 
 #### 2. Install requirements
 Make sure you have Python installed. Install the dependencies in `requirements.txt` in the environment you are using:  
-`pip install -r requirements.txt`
+```pip install -r requirements.txt```
 
 ### Running with Docker
 You can run this project in a Docker container. To do so, build the Docker image:  
-`docker build -t <your-image-name> .`
+```docker build -t <your-image-name> .```
 
 Then, run the container:  
-`docker run -it --rm <your-image-name>`
+```docker run -it --rm <your-image-name>```
 
 If you wish to interact with the container via bash shell, run:  
-`docker run -it --rm <your-image-name> /bin/bash`
+```docker run -it --rm <your-image-name> /bin/bash```
 
 ### Directory structure
