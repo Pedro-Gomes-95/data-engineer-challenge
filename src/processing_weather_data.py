@@ -46,9 +46,10 @@ def process_weather_data():
     processed_files_path = env_variables.get("PROCESSED_FILES_PATH")
 
     # Read the configuration file
-    logger.info("Loading the JSON configuration file")
+    config_path = env_variables.get("CONFIG_PATH")
     try:
-        with open(path / "config/config_file.json", "r") as f:
+        logger.info("Loading the JSON configuration file")
+        with open(config_path, "r") as f:
             config = json.load(f)
     except Exception as e:
         logger.error(f"Error loading the JSON configuration file: {e}")
@@ -57,7 +58,7 @@ def process_weather_data():
     loaded_weather_data = (
         config.get("loading_layer", {})
         .get("weather_data", {})
-        .get("table_name", "weather_data")
+        .get("table_name", "weather_data_loaded")
     )
     loaded_weather_data_file = loaded_files_path / f"{loaded_weather_data}.parquet"
 

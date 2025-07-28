@@ -45,9 +45,10 @@ def process_city_codes():
     processed_files_path = env_variables.get("PROCESSED_FILES_PATH")
 
     # Read the configuration file
-    logger.info("Loading the JSON configuration file")
+    config_path = env_variables.get("CONFIG_PATH")
     try:
-        with open(path / "config/config_file.json", "r") as f:
+        logger.info("Loading the JSON configuration file")
+        with open(config_path, "r") as f:
             config = json.load(f)
     except Exception as e:
         logger.error(f"Error loading the JSON configuration file: {e}")
@@ -57,7 +58,7 @@ def process_city_codes():
     loaded_city_codes = (
         config.get("loading_layer", {})
         .get("city_codes", {})
-        .get("table_name", "city_codes")
+        .get("table_name", "city_codes_loaded")
     )
     loaded_city_codes_file = loaded_files_path / f"{loaded_city_codes}.parquet"
 
