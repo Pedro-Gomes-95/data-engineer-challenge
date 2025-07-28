@@ -5,11 +5,11 @@
 
 This repository contains code to fetch weather data for one or more predefined cities using the [Open Weather API](https://openweathermap.org/) link. Details about the API can be found [here](https://openweathermap.org/current#name). A full description of the project is provided in the next sections.
 
-⚠️ **IMPORTANT**: Accessing the API requires an API key. To obtain one, create an account on the Open Weather website. After registering, your API key will be available in your account dashboard under the “API key” tab. This key must be added to a `.env` file as described later in this README.
+⚠️ **IMPORTANT**: Accessing the API requires an API key. To obtain one, create an account on the Open Weather website. After registering, your API key will be available in your account dashboard under the “API key” tab. This key must be added to the `.env` file, as described later in this README.
 
-Once the pipeline has been executed, the following outputs will be available:
+Once the pipeline has been executed, the following files will be available:
 
-* Weather data information:  
+* Weather data information (`data/processed/weather_data_processed.parquet`):
 
     | Field Name              | Description                                                       |
     |-------------------------|-------------------------------------------------------------------|
@@ -36,36 +36,36 @@ Once the pipeline has been executed, the following outputs will be available:
     | `file_name`             | Name of the source file the data was extracted from               |
     | `ingestion_date`        | Date on which the file was created                                |
 
-* Weather code information:
+* Weather code information (`data/processed/weather_data_processed.parquet`):
 
     | Field              | Description                                      |
     |--------------------|--------------------------------------------------|
     | `id`               | Unique identifier for the weather condition      |
-    | `short_description`| General category of the weather (e.g., Rain)     |
+    | `short_description`| General category of the weather                  |
     | `long_description` | More detailed description of the weather condition    |
     | `ingestion_date`             | Date on which the file was created               |
 
 
-* City metadata:  
+* City metadata (`data/processed/city_codes_processed.parquet`):  
 
     | Field        | Description                                      |
     |--------------|--------------------------------------------------|
     | `id`         | Unique identifier for the city                   |
     | `name`       | Name of the city                                 |
-    | `state`      | Name of the state                                |
-    | `country`    | ISO 3166 country code (e.g., "PT")               |
-    | `longitude`  | Geographic longitude coordinate of the city      |
-    | `latitude`   | Geographic latitude coordinate of the city       |
+    | `state`      | Name of the state the city belongs to            |
+    | `country`    | ISO 3166 country code the city belongs to        |
+    | `longitude`  | Longitude coordinate of the city                 |
+    | `latitude`   | Latitude coordinate of the city                  |
     | `ingestion_date`             | Date on which the file was created               |
 
 
 ## TL;DR
-If you are short on time, follow the instructions below:
-1. Set up the project in your local machine, using the procedure described in the section "Getting started".
+If you are short on time, follow the instructions below to run the pipeline:
+1. Set up the project in your local machine, using the procedure described in the section "Getting started" below.
 2. Add your own API key to the .env file (**the code will not execute without the API key**.)
 3. Add the cities for which you want to fetch weather data to the  `config_file.json` file.
-4. Execute the file `pipeline.py`.
-5. Weather data can be found in the `data/processed/weather_data_processed.parquet` file.
+4. Execute the file `src/pipeline.py`.
+5. Processed data can be found in the `data/processed` folder.
 
 ### Getting started
 Follow these instructions to copy the project to your local machine and run it:
@@ -137,12 +137,11 @@ Code separation is the key to staying sane. The directory structure is as follow
 └── README.md                               # This file
 ``` 
 
-### Project description
-The source code for this project follows a modular approach, based on the ELT (Extract-Load-Transform) pattern. It is structured in 3 layers:
+The source code for this project follows a modular approach, loosely based on the ELT (Extract-Load-Transform) pattern. It is structured in 3 layers:
 * **Ingestion**  
-This layer is where weather data is fetched from the API. Cities to be queried are defined in the `config_file.json`. For each city, weather data is stored under `data/raw/weather_data/<city-name>`, where `<city-name>` is the target location.
+    This layer is where weather data is fetched from the API. Cities to be queried are defined in the `config_file.json`. For each city, weather data is stored under `data/raw/weather_data/<city-name>`, where `<city-name>` is the target location.
 
-The `data/raw` directory also includes two other subfolders: `weather_codes` and `city_codes`. The former contains descriptive weather condition codes, which were manually compiled into a CSV file based on the information provided in [this](https://openweathermap.org/weather-conditions) page. The latter contains a list of cities and their metadata, as a JSON file, downloaded from the [OpenWeather bulk data page](https://bulk.openweathermap.org/sample/) (`city.list.json.gz`)
+    The `data/raw` directory also includes two other subfolders: `weather_codes` and `city_codes`. The former contains descriptive weather condition codes, which were manually compiled into a CSV file based on the information provided in [this](https://openweathermap.org/weather-conditions) page. The latter contains a list of cities and their metadata, as a JSON file, downloaded from the [OpenWeather bulk data page](https://bulk.openweathermap.org/sample/) (`city.list.json.gz`)
 
 * **Loading**  
 The raw data is parsed and transformed into structured Parquet files. 
@@ -155,7 +154,7 @@ Each layer is implemented as a separate module under the `src/` directory, makin
 #### `env`
 The `.env` file is extremely important in the execution of the data pipeline, as it stores the API key and defines custom paths used during ingestion, loading, and processing. 
 
-⚠️ **IMPORTANT**: as mentioned above, you must add your API key to this file before running the pipeline. After this, make sure that you add the file to the `.gitignore` file, so that your key is not accidentaly uploaded to Git.
+⚠️ **IMPORTANT**: as mentioned above, you must add your API key to this file before running the pipeline. After this, make sure that you add the file to the `.gitignore` file, so that your key is not accidentaly uploaded to Git when pushing the code.
 
 #### `config`
 This folder contains a JSON file that centralizes the configuration for the pipeline. It includes:
@@ -166,8 +165,8 @@ A list of cities for which weather data should be collected.
 * `api`  
 Contains settings related to the API:
     * `base_url`: the root URL used for the API requests.
-    * `units`: the measurement system (can be"standard", "metric" or "imperial").
-    * `language`: the language of the output.
+    * `units`: the measurement system (currently using "metric", can be "standard", "metric" or "imperial").
+    * `language`: the language of the output (currently using "en" for "english").
 
 * `ingestion_layer`  
 Contains settings related to the raw data ingestion:
