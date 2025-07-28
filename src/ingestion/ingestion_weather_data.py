@@ -1,8 +1,13 @@
+import os
+import sys
 import json
 import logging
 import pandas as pd
 
 from pathlib import Path
+
+# Add parent directory to sys.path to get the functions in utils
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from utils.weather_api_client import WeatherAPIClient
 from utils.auxiliary_functions import load_env_variables, create_directory
@@ -35,7 +40,7 @@ def ingest_weather_data():
     logger.info("Starting ingestion process of weather data from the API")
 
     # Load the environment variables
-    path = Path(__file__).parent.parent
+    path = Path(__file__).parent.parent.parent
     env_variables = load_env_variables(path, logger)
 
     # Check if the API_KEY is present in the .env file, and, if not, raise an error

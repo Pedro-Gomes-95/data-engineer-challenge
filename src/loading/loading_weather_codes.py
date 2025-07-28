@@ -1,9 +1,14 @@
 import os
+import sys
 import json
 import logging
 import pandas as pd
 
 from pathlib import Path
+
+# Add parent directory to sys.path to get the functions in utils
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 from utils.auxiliary_functions import load_env_variables
 
 logger = logging.getLogger("loading_weather_codes")
@@ -34,7 +39,7 @@ def load_weather_codes():
     logging.info("Starting ingestion process of weather codes")
 
     # Load the environment variables
-    path = Path(__file__).parent.parent
+    path = Path(__file__).parent.parent.parent
     env_variables = load_env_variables(path, logger)
 
     # Check if the RAW_WEATHER_CODES_PATH is present in the .env file

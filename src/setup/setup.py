@@ -29,7 +29,7 @@ def setup():
     logger.info("Starting setup process")
 
     # Load the environment variables
-    path = Path(__file__).parent.parent
+    path = Path(__file__).parent.parent.parent
     env_variables = load_env_variables(path, logger)
 
     # Check if the API_KEY is present
