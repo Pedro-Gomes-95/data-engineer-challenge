@@ -1,3 +1,4 @@
+import os
 import json
 import logging
 import pandas as pd
@@ -50,14 +51,34 @@ def load_weather_codes():
         logger.error(f"Error loading the JSON configuration file: {e}")
         return
 
-    # Fetch the data
-    file_path = (
+    # Get the directories of the source and destination files
+    weather_codes_file_name = (
         config.get("ingestion_layer", {})
         .get("weather_codes", {})
         .get("file_name", "weather_codes.csv")
     )
-    csv_path = raw_files_path / file_path
+    csv_path = raw_files_path / weather_codes_file_name
 
+    weather_codes_table_name = (
+        config.get("loading_layer", {})
+        .get("weather_codes", {})
+        .get("table_name", "weather_codes_loaded")
+    )
+    parquet_path = loaded_files_path / f"{weather_codes_table_name}.parquet"
+
+    # If the destination file exists, and the source file hasn't been updated, skip
+    if os.path.exists(csv_path) and os.path.exists(parquet_path):
+        json_path_mdate = os.path.getmtime(json_path)
+        parquet_file_mdate = os.path.getmtime(parquet_path)
+
+        if parquet_file_mdate > json_path_mdate:
+            logger.info(
+                f"Parquet file is up to date. Original file has not been updated."
+                "Skipping file processing."
+            )
+            return
+
+    # Fetch the data
     try:
         logger.info(f"Loading weather codes data from file {csv_path}.")
         df = pd.read_csv(csv_path, sep=",")
@@ -69,13 +90,6 @@ def load_weather_codes():
     df["ingestion_date"] = pd.Timestamp.now()
 
     # Store the data
-    weather_codes_table_name = (
-        config.get("loading_layer", {})
-        .get("weather_codes", {})
-        .get("table_name", "weather_codes_loaded")
-    )
-    parquet_path = loaded_files_path / f"{weather_codes_table_name}.parquet"
-
     try:
         logger.info(f"Saving the file to {parquet_path}")
         df.to_parquet(parquet_path, index=False)

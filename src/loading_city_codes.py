@@ -1,3 +1,4 @@
+import os
 import json
 import logging
 import pandas as pd
@@ -50,14 +51,33 @@ def load_city_codes():
     except Exception as e:
         logger.error(f"Error loading the JSON configuration file: {e}")
         return
-    
-    # Fetch the data
-    file_name = (
+
+    # Get the directories of the source and destination files
+    city_codes_file_name = (
         config.get("ingestion_layer", {})
         .get("city_codes", {})
         .get("file_name", "city_codes.json")
     )
-    json_path = raw_files_path / file_name
+    json_path = raw_files_path / city_codes_file_name
+
+    city_codes_table_name = (
+        config.get("loading_layer", {})
+        .get("city_codes", {})
+        .get("table_name", "city_codes_loaded")
+    )
+    parquet_path = loaded_files_path / f"{city_codes_table_name}.parquet"
+
+    # If the destination file exists, and the source file hasn't been updated, skip
+    if os.path.exists(json_path) and os.path.exists(parquet_path):
+        json_path_mdate = os.path.getmtime(json_path)
+        parquet_file_mdate = os.path.getmtime(parquet_path)
+
+        if parquet_file_mdate > json_path_mdate:
+            logger.info(
+                f"Parquet file is up to date. Original file has not been updated."
+                "Skipping file processing."
+            )
+            return
 
     try:
         logger.info(f"Loading city codes data from file {json_path}.")
@@ -74,13 +94,6 @@ def load_city_codes():
     df["ingestion_date"] = pd.Timestamp.now()
 
     # Store the data
-    city_codes_table_name = (
-        config.get("loading_layer", {})
-        .get("city_codes", {})
-        .get("table_name", "city_codes_loaded")
-    )
-    parquet_path = loaded_files_path / f"{city_codes_table_name}.parquet"
-
     try:
         logger.info(f"Saving the file to {parquet_path}")
         df.to_parquet(parquet_path, index=False)
@@ -88,6 +101,7 @@ def load_city_codes():
         logger.error(f"Error saving the Parquet file: {e}")
 
     logger.info(f"Loading of city codes finalized.")
+
 
 if __name__ == "__main__":
     load_city_codes()
