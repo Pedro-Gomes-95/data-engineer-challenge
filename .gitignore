@@ -1,5 +1,7 @@
 .env
-data/
+data/loaded
+data/processed
+data/raw/weather_data
 # files/
 *.pyc
 *.ipynb
