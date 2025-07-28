@@ -81,6 +81,20 @@ def process_weather_data():
         config.get("ingestion_layer", {}).get("weather_data", {}).get("fields", {})
     )
 
+    # If the destination file exists, and the source file hasn't been updated, skip
+    if os.path.exists(loaded_weather_data_file) and os.path.exists(
+        processed_weather_data_file
+    ):
+        loaded_file_mdate = os.path.getmtime(loaded_weather_data_file)
+        processed_file_mdate = os.path.getmtime(processed_weather_data_file)
+
+        if processed_file_mdate > loaded_file_mdate:
+            logger.info(
+                f"Processed Parquet file is up to date. Loaded Parquet file has not been updated."
+                "Skipping file processing."
+            )
+            return
+
     if os.path.exists(loaded_weather_data_file):
         logger.info(f"Loading data from the Parquet file {loaded_weather_data_file}")
         df = pd.read_parquet(loaded_weather_data_file)

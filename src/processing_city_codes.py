@@ -82,6 +82,20 @@ def process_city_codes():
         config.get("processing_layer", {}).get("city_codes", {}).get("fields", {})
     )
 
+    # If the destination file exists, and the source file hasn't been updated, skip
+    if os.path.exists(loaded_city_codes_file) and os.path.exists(
+        processed_city_codes_file
+    ):
+        loaded_file_mdate = os.path.getmtime(loaded_city_codes_file)
+        processed_file_mdate = os.path.getmtime(processed_city_codes_file)
+
+        if processed_file_mdate > loaded_file_mdate:
+            logger.info(
+                f"Processed Parquet file is up to date. Loaded Parquet file has not been updated."
+                "Skipping file processing."
+            )
+            return
+
     # Check if the file to be processed exists
     if os.path.exists(loaded_city_codes_file):
         logger.info(f"Loading data from the Parquet file {loaded_city_codes_file}")
