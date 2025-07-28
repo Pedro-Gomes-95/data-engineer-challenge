@@ -9,31 +9,32 @@ The code in this repository fetches weather data for one or more predefined citi
 
 The following information is available after pipeline execution:
 
-* Weather data information:
-| Field Name              | Description                                                       |
-|-------------------------|-------------------------------------------------------------------|
-| `time_value`            | UTC time of data calculation                                      |
-| `timezone`              | Shift in seconds from UTC                                         |
-| `city_id`               | Unique identifier of the city (used to join with city metadata)   |
-| `weather_id`            | Weather condition code (used to join with weather codes)          |
-| `visibility`            | Visibility distance (meters)                                    |
-| `temperature`           | Current temperature (°C)                                             |
-| `perceived_temperature` | Human perception of temperature  (°C)                                       |
-| `min_temperature`       | Minimum temperature at the moment (°C)                                     |
-| `max_temperature`       | Maximum temperature at the moment (°C)                                     |
-| `atm_pressure_sea_level`| Atmospheric pressure at sea level (hPa)                          |
-| `atm_pressure_ground_level`| Atmospheric pressure at ground level (hPa)                    |
-| `humidity`              | Humidity (%)                                               |
-| `wind_speed`            | Wind speed (m/s)                   |
-| `wind_direction`        | Wind direction (in degrees)                                         |
-| `wind_gust`             | Wind gust speed (if available)                                    |
-| `cloudiness`            | Cloudiness (percentage)                                         |
-| `rain`                  | Precipitation (mm/h)                                 |
-| `snow`                  | Precipitation (mm/h)                                 |
-| `time_sunrise`          | UTC sunrise time                                                |
-| `time_sunset`           | UTC sunset time                                                 |
-| `file_name`             | Name of the source file the data was extracted from               |
-| `ingestion_date`             | Date on which the file was created               |
+* Weather data information:  
+
+    | Field Name              | Description                                                       |
+    |-------------------------|-------------------------------------------------------------------|
+    | `time_value`            | UTC time of data calculation                                      |
+    | `timezone`              | Shift in seconds from UTC                                         |
+    | `city_id`               | Unique identifier of the city (used to join with city metadata)   |
+    | `weather_id`            | Weather condition code (used to join with weather codes)          |
+    | `visibility`            | Visibility distance (meters)                                      |
+    | `temperature`           | Current temperature (°C)                                          |
+    | `perceived_temperature` | Human perception of temperature  (°C)                             |
+    | `min_temperature`       | Minimum temperature at the moment (°C)                            |
+    | `max_temperature`       | Maximum temperature at the moment (°C)                            |
+    | `atm_pressure_sea_level`| Atmospheric pressure at sea level (hPa)                           |
+    | `atm_pressure_ground_level`| Atmospheric pressure at ground level (hPa)                     |
+    | `humidity`              | Humidity (%)                                                      |
+    | `wind_speed`            | Wind speed (m/s)                                                  |
+    | `wind_direction`        | Wind direction (in degrees)                                       |
+    | `wind_gust`             | Wind gust speed (if available)                                    |
+    | `cloudiness`            | Cloudiness (percentage)                                           |
+    | `rain`                  | Precipitation (mm/h)                                              |
+    | `snow`                  | Precipitation (mm/h)                                              |
+    | `time_sunrise`          | UTC sunrise time                                                  |
+    | `time_sunset`           | UTC sunset time                                                   |
+    | `file_name`             | Name of the source file the data was extracted from               |
+    | `ingestion_date`        | Date on which the file was created                                |
 
 * Weather code information:
 
