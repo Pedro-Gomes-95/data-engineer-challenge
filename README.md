@@ -3,13 +3,13 @@
 ## Project description
 **Note**: you can find a TL;DR on how to run the pipeline below.
 
-This repository contains code to fetch weather data for one or more predefined cities using the [Open Weather API](https://openweathermap.org/) link. Details about the API can be found [here](https://openweathermap.org/current#name). A full description of the project is provided in the next sections.
+This repository contains code to fetch weather data for one or more predefined cities using the [Open Weather API](https://openweathermap.org/). Details about the API can be found [here](https://openweathermap.org/current#geo). A full description of the project is provided in the next sections.
 
-⚠️ **IMPORTANT**: Accessing the API requires an API key. To obtain one, create an account on the Open Weather website. After registering, your API key will be available in your account dashboard under the “API key” tab. This key must be added to the `.env` file, as described later in this README.
+⚠️ **IMPORTANT**: accessing the API requires an API key. To obtain one, create an account on the Open Weather website. After registering, your API key will be available in your account dashboard under the “API key” tab. This key must be added to the `.env` file, as described later in this README. **The pipeline will not execute without the API key.**
 
-Once the pipeline has been executed, the following files will be available:
+The pipeline used the `scheduler` package to run every 30 minutes. Once it has been executed, the following files will be available:
 
-* Weather data information (`data/processed/weather_data_processed.parquet`):
+* Weather data information (under the folder `data/processed/weather_data_processed.parquet`):
 
     | Field Name              | Description                                                       |
     |-------------------------|-------------------------------------------------------------------|
@@ -36,7 +36,7 @@ Once the pipeline has been executed, the following files will be available:
     | `file_name`             | Name of the source file the data was extracted from               |
     | `ingestion_date`        | Date on which the file was created                                |
 
-* Weather code information (`data/processed/weather_data_processed.parquet`):
+* Weather code information (under the folder `data/processed/weather_data_processed.parquet`):
 
     | Field              | Description                                      |
     |--------------------|--------------------------------------------------|
@@ -46,7 +46,7 @@ Once the pipeline has been executed, the following files will be available:
     | `ingestion_date`             | Date on which the file was created               |
 
 
-* City metadata (`data/processed/city_codes_processed.parquet`):  
+* City metadata (under the folder `data/processed/city_codes_processed.parquet`):  
 
     | Field        | Description                                      |
     |--------------|--------------------------------------------------|
@@ -237,5 +237,3 @@ Handles the transformation of raw files into the Parquet format, with individual
 
 * `processing`  
 Contains scripts that process and format the loaded data, making it suited for analysis and visualization. Just like the `loading` layer, each dataset possesses its own individual script.
-
-

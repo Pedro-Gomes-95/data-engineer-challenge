@@ -1,3 +1,5 @@
+import time
+import schedule
 import logging
 
 from setup.setup import setup
@@ -21,7 +23,11 @@ handler.setFormatter(formatter)
 
 logger.addHandler(handler)
 
-if __name__ == "__main__":
+def pipeline():
+    """
+    Executes all the tasks in the pipeline.
+    """
+
     logger.info("Starting the pipeline")
     setup()
     ingest_weather_data()
@@ -32,3 +38,16 @@ if __name__ == "__main__":
     process_weather_codes()
     process_city_codes()
     logger.info("Pipeline completed.")
+
+if __name__ == "__main__":
+    # Call pipeline to run for the first time 
+    pipeline()
+
+    # Define the scheduler to run every half an hour after this
+    schedule.every().hour.at(":00").do(pipeline)
+    schedule.every().hour.at(":30").do(pipeline)
+    # schedule.every(30).seconds.do(pipeline)
+
+    while True:
+        schedule.run_pending()
+        time.sleep(5)
