@@ -149,7 +149,7 @@ The raw data is parsed and transformed into structured Parquet files.
 * **Processing**  
 The data is cleaned and filtered. The output from this step is ready for further analysis.
 
-Each layer is implemented as a separate module under the `src/` directory, making the data pipeline easy to maintain, test, and extend. The full pipeline can be triggered by the `pipeline.py` script. This script uses the `scheduler` page to run every 30 minutes at the start of the hour (e.g., at 3:00pm, 3:30pm, 4:00pm, and so on). The purpose of this scheduling is to get the data at regular time intervals and emulate a workflow running at regular times.
+Each layer is implemented as a separate module under the `src/` directory, making the data pipeline easy to maintain, test, and extend. The full pipeline can be triggered by the `pipeline.py` script. This script uses the `scheduler` package to run automatically every 30 minutes, at the start and middle of each hour (e.g., at 3:00 PM, 3:30 PM, 4:00 PM, and so on). This approach ensures the data is ingested and processed at regular intervals, mimicking a regular cloud workflow.
 
 #### `env`
 The `.env` file is extremely important in the execution of the data pipeline, as it stores the API key and defines custom paths used during ingestion, loading, and processing. 
