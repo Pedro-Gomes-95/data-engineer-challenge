@@ -46,7 +46,6 @@ if __name__ == "__main__":
     # Define the scheduler to run every half an hour after this
     schedule.every().hour.at(":00").do(pipeline)
     schedule.every().hour.at(":30").do(pipeline)
-    # schedule.every(30).seconds.do(pipeline)
 
     while True:
         schedule.run_pending()

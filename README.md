@@ -62,7 +62,7 @@ The pipeline used the `scheduler` package to run every 30 minutes. Once it has b
 ## TL;DR
 If you are short on time, follow the instructions below to run the pipeline:
 1. Set up the project in your local machine, using the procedure described in the section "Getting started" below.
-2. Add your own API key to the .env file (**the code will not execute without the API key**.)
+2. Add your own API key to the `.env` file (**the code will not execute without the API key**.)
 3. Add the cities for which you want to fetch weather data to the  `config_file.json` file.
 4. Execute the file `src/pipeline.py`.
 5. Processed data can be found in the `data/processed` folder.
@@ -141,7 +141,7 @@ The source code for this project follows a modular approach, loosely based on th
 * **Ingestion**  
     This layer is where weather data is fetched from the API. Cities to be queried are defined in the `config_file.json`. For each city, weather data is stored under `data/raw/weather_data/<city-name>`, where `<city-name>` is the target location.
 
-    The `data/raw` directory also includes two other subfolders: `weather_codes` and `city_codes`. The former contains descriptive weather condition codes, which were manually compiled into a CSV file based on the information provided in [this](https://openweathermap.org/weather-conditions) page. The latter contains a list of cities and their metadata, as a JSON file, downloaded from the [OpenWeather bulk data page](https://bulk.openweathermap.org/sample/) (`city.list.json.gz`)
+    The `data/raw` directory also includes two other subfolders: `weather_codes` and `city_codes`. The former contains descriptive weather condition codes, which were manually compiled into a CSV file based on the information provided in [this](https://openweathermap.org/weather-conditions) page. The latter contains a list of cities and their metadata, as a JSON file, downloaded from the [Open Weather bulk data page](https://bulk.openweathermap.org/sample/) (`city.list.json.gz`)
 
 * **Loading**  
 The raw data is parsed and transformed into structured Parquet files. 
@@ -149,7 +149,7 @@ The raw data is parsed and transformed into structured Parquet files.
 * **Processing**  
 The data is cleaned and filtered. The output from this step is ready for further analysis.
 
-Each layer is implemented as a separate module under the `src/` directory, making the data pipeline easy to maintain, test, and extend. The full pipeline can be triggered by the `pipeline.py` script.
+Each layer is implemented as a separate module under the `src/` directory, making the data pipeline easy to maintain, test, and extend. The full pipeline can be triggered by the `pipeline.py` script. This script uses the `scheduler` page to run every 30 minutes at the start of the hour (e.g., at 3:00pm, 3:30pm, 4:00pm, and so on). The purpose of this scheduling is to get the data at regular time intervals and emulate a workflow running at regular times.
 
 #### `env`
 The `.env` file is extremely important in the execution of the data pipeline, as it stores the API key and defines custom paths used during ingestion, loading, and processing. 
